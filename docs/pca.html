@@ -717,7 +717,7 @@ would take away the effect of question father from the center of gravity.</p>
 <span id="cb2-6"><a href="pca.html#cb2-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">bg =</span> <span class="st">&quot;white&quot;</span>,     <span class="co"># Background color</span></span>
 <span id="cb2-7"><a href="pca.html#cb2-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">&quot;&quot;</span>,       <span class="co"># Main title</span></span>
 <span id="cb2-8"><a href="pca.html#cb2-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="cn">NULL</span>) </span></code></pre></div>
-<p><img src="_main_files/figure-html/correlation%20plot-1.PNG" width="672" /></p>
+<p><img src="main_files/figure-html/correlation%20plot-1.png" width="672" /></p>
 </div>
 <div id="analysis" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Analysis</h2>
@@ -760,7 +760,7 @@ explained variance. Thus, if the data is not centered, the first dimension
 would capture the variance that the mean contributed to the data set.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="pca.html#cb5-1" aria-hidden="true" tabindex="-1"></a>my.scree <span class="ot">&lt;-</span> <span class="fu">PlotScree</span>(<span class="at">ev =</span> res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>ExPosition.Data<span class="sc">$</span>eigs,</span>
 <span id="cb5-2"><a href="pca.html#cb5-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">p.ev =</span> res_pcaInf<span class="sc">$</span>Inference.Data<span class="sc">$</span>components<span class="sc">$</span>p.vals)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 </div>
 <div id="row-factor-scores" class="section level3" number="1.3.3">
 <h3><span class="header-section-number">1.3.3</span> Row Factor Scores</h3>
@@ -788,7 +788,7 @@ reveal subtle gender distinctions.</p>
 on the x-axis or first dimension and 14% of the variance on the y-axis or second dimension.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="pca.html#cb7-1" aria-hidden="true" tabindex="-1"></a>fi.plot <span class="ot">&lt;-</span> my.fi.plot<span class="sc">$</span>zeMap <span class="sc">+</span> fi.labels <span class="co"># you need this line to be able to save them in the end</span></span>
 <span id="cb7-2"><a href="pca.html#cb7-2" aria-hidden="true" tabindex="-1"></a>fi.plot</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
 <div id="row-factor-scores-with-means" class="section level3" number="1.3.4">
 <h3><span class="header-section-number">1.3.4</span> Row Factor Scores with Means</h3>
@@ -798,7 +798,7 @@ the first dimension.</p>
 <p>As we project the variables later on, we will be able to link gender with certain
 music preferences. Thus, we can make sense of the large data table with nineteen
 dimensions and thousands of data points.</p>
-<p><img src="_main_files/figure-html/fimeanplot-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/fimeanplot-1.png" width="672" /></p>
 </div>
 <div id="row-factor-scores-with-tolerance-interval" class="section level3" number="1.3.5">
 <h3><span class="header-section-number">1.3.5</span> Row Factor Scores with Tolerance interval</h3>
@@ -822,7 +822,7 @@ future graphs with specific variables going to spefific groups of observations.<
 <span id="cb8-13"><a href="pca.html#cb8-13" aria-hidden="true" tabindex="-1"></a>  fi.mean.plot<span class="sc">$</span>zeMap_dots <span class="sc">+</span> fi.mean.plot<span class="sc">$</span>zeMap_text <span class="sc">+</span> TIplot <span class="sc">+</span> fi.labels</span>
 <span id="cb8-14"><a href="pca.html#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-15"><a href="pca.html#cb8-15" aria-hidden="true" tabindex="-1"></a>fi.WithMeanTI</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 <div id="bootstrap-interval" class="section level3" number="1.3.6">
 <h3><span class="header-section-number">1.3.6</span> Bootstrap interval</h3>
@@ -861,7 +861,7 @@ distinct from 95% of the group means of females.</p>
 <span id="cb10-7"><a href="pca.html#cb10-7" aria-hidden="true" tabindex="-1"></a>  fi.mean.plot<span class="sc">$</span>zeMap_text <span class="sc">+</span> fi.labels</span>
 <span id="cb10-8"><a href="pca.html#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-9"><a href="pca.html#cb10-9" aria-hidden="true" tabindex="-1"></a>fi.WithMeanCI</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 <div id="loadings" class="section level3" number="1.3.7">
 <h3><span class="header-section-number">1.3.7</span> Loadings</h3>
@@ -880,13 +880,13 @@ Roll.</p>
 <p>Additionally, the first dimension seems to separate Techo, Hiphop, Pop, and Dance,
 which tend to be fast tempo songs from the rest of the genres which range
 from moderate to slow.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>The variance of each component is plotted for the factor scores
 for the variables. We see that the biggest amount of variance comes from those
 away from the center of gravity. Thus, Metal, Punk, Rock, Alternative, Rock and Roll,
 Opera, Swing, Musical, Latino, Pop, Dance, and Hiphop capture the largest
 amounts of variance compared to the other variables.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
 <div id="dimensions-2-and-3" class="section level3" number="1.3.8">
 <h3><span class="header-section-number">1.3.8</span> Dimensions 2 and 3</h3>
@@ -895,29 +895,29 @@ The pink dot (females) are more dispersed away from the center of gravity and in
 third and fourth quadrant. The blue dot (males) overlap in the center of gravity
 and above the x-axis. The third dimension retains 11% of the total variance of the
 data set.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <p>The males and females seem to form distinct groups. Further, it is surprising
 that the female is still close to the origin. However, upon closer examination
 there are several female observations on the periphery, especially in the second
 and third quadrant. Here, the gender DESIGN is split along the second dimension.
 The third dimension shows little group distinction along the DESIGN of gender.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
-<p><img src="_main_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>The tolerance interval seems to show a convex hull with the protrusion of 95% of
 female observations extending into the second, third, and fouth quadrants.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 <p>The Confidence intervals are non-overlapping, indicating a clear separation
 between groups.</p>
 </div>
 <div id="loadings-circle-of-correlation" class="section level3" number="1.3.9">
 <h3><span class="header-section-number">1.3.9</span> Loadings / Circle of Correlation</h3>
-<p><img src="_main_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<p><img src="main_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 Like before, the second dimension shows that males like Rock, Punk, Metal, and
 Alternative while females like everything else. The third dimension shows that
 males like the same genres of Rock, Punk, Metal, and Alternative while females
 like Latino, Musical, Opera, and Classical. This is consistent to what was seen
 in the first dimension.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <ul>
 <li><p>Component 2: Rock Concert Music vs. everything else
 Interpret: Males align with the Rock Concert Music genres.</p></li>
@@ -961,7 +961,7 @@ in terms of preference.</p>
 <span id="cb12-6"><a href="pca.html#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">2</span>,<span class="at">nrow =</span> <span class="dv">2</span>,</span>
 <span id="cb12-7"><a href="pca.html#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">top =</span> <span class="fu">textGrob</span>(<span class="st">&quot;Barplots for variables&quot;</span>, <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">18</span>, <span class="at">font =</span> <span class="dv">3</span>))</span>
 <span id="cb12-8"><a href="pca.html#cb12-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/grid_ctrJ-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/grid_ctrJ-1.png" width="960" /></p>
 <p>The second takeaway from above is that female survey participants showed a preference for
 Latino, Musical, Opera, and Classical as explained by the first and third dimensions.
 Opera and Classical contribute to the both the first and third dimensions while
@@ -971,7 +971,7 @@ and Classical hve significant bootstrap ratios for the third dimension.</p>
 third dimension and have significant bootstrap ratios for those dimension. Thus, we can
 strongly argue that females have a preference for Opera and Classical over male
 survey participants.</p>
-<p><img src="_main_files/figure-html/grid_ctrJ%202-1.png" width="960" />
+<p><img src="main_files/figure-html/grid_ctrJ%202-1.png" width="960" />
 ### Save figures to PPT</p>
 <p>The following code can give you a .pptx file with all the
 figures saved in the directory.</p>
