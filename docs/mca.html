@@ -136,7 +136,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <nav role="navigation">
 
 <ul class="summary">
-<li><a href="./"><img src="img.PNG" width="280"></a></li>
+<li><a href="./"><img src="img.png" width="280"></a></li>
 
 <li class="divider"></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
@@ -265,7 +265,7 @@ of Music preferences, I binned the first 4 scores into one group and left the
 score of 5 in its own group. There are 918 survey participants and 20 variables,
 including Gender.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="mca.html#cb22-1" aria-hidden="true" tabindex="-1"></a>hist.Mu <span class="ot">&lt;-</span> <span class="fu">hist</span>(rawData2[,<span class="dv">2</span>], <span class="at">breaks =</span> <span class="dv">20</span>) <span class="co"># 1 to 4 and 5</span></span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-35-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-35-1.png" width="960" /></p>
 </div>
 <div id="recoding-the-data" class="section level2" number="3.2">
 <h2><span class="header-section-number">3.2</span> Recoding the data</h2>
@@ -785,7 +785,7 @@ and the Kaiser line.</p>
 <pre><code>## [1] &quot;It is estimated that your iterations will take 0.03 minutes.&quot;
 ## [1] &quot;R is not in interactive() mode. Resample-based tests will be conducted. Please take note of the progress bar.&quot;
 ## ================================================================================</code></pre>
-<p><img src="_main_files/figure-html/unnamed-chunk-43-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-43-1.png" width="960" /></p>
 <p>The heat map is done on a Burt Table, which is a frequency table that is dummy
 coded for the groups of variables. It it based on disjunctive coding, a type of
 group coding, where either a variable is coded as a 1 or 0. Rock and Metal have
@@ -793,71 +793,71 @@ a high positive correlation value as does Rock and Punk as well as Metal and Pun
 and Dance, Dance and Techno, and Rock and Rock and Roll have high levels of
 possitive correlation. In addition, Musical and Opera as well as Classical and
 Opera have notable positive correlation values.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-44-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-44-1.png" width="960" /></p>
 <p>As referenced in the previous comments, Rock, Metal, Punk, Rock and Roll,
 Opera, and Classical are important contributors to the first dimension.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-48-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-48-1.png" width="960" /></p>
 <p>Rock, Pop, Dance, and Tech, all of which were reference before, are important
 contributors to the second dimension.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-49-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-49-1.png" width="960" /></p>
 <p>Rock, Metal, Punk, Musical, Classical, and Opera are important contributors to the
 third dimension.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-50-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-50-1.png" width="960" /></p>
 <p>To read the next graph, the data point near the axis are importantly mostly
 to that corresponding dimension. Thus, Dance, Techno, and Pop are near the
 y-axis so they all contribute heavly to the second dimension. Rock, Opera, and
 Classical are near the x-axis so they all contribute heavly to the first dimension.
 The farther away from the center of gravity indicates higher variance.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-51-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-51-1.png" width="960" /></p>
 <p>In addition to the variables spotted on the heat map, the next graph captures the
 important variables based on the contribution level by setting a cut of of 1 divided
 by the number of dimension (19) in out case, leaving a benchmark of 0.05263.</p>
 <p>In addition to what was stated before, dimension 1 and 2 include Latino, Swing, and
 Alternative. Similarly, dimension 2 and 3 capture Hiphop, Latino, and Alternative.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-52-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-52-2.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-52-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-52-2.png" width="960" /></p>
 <p>The variables identified in the heatmap as being important and confirmed with the
 contribution plots was all stable, indicated by the bootstrap ratios, expect for
 Rock no being significant in the third dimension. It is called a Psedo Bootstrap
 Ratio because the variables are binned and are not exact.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-53-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-53-2.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-53-3.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-53-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-53-2.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-53-3.png" width="960" /></p>
 <p>Here the binned data is geometrically projected in the first two dimensions.
 It forms somewhat of an arch with the many of the low-end binned variables, indicating
 low preference and low agreement, being in the third quadrant, and the high-end binned
 variables, indicating high preference and high agreement, being in the first and fourth quadrant.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-54-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-54-1.png" width="960" /></p>
 <p>Classical, Swing, Alternative, and Rock and Roll are split by the first dimension,
 which makes sense as the first dimension accounts for 54% of the variance.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-55-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-55-1.png" width="960" /></p>
 <p>Latino has an interesting pattern. If you have a high preference for Latino, you
 tend to have a mid-range preference for Alternative, Metal, Opera, and Rock and Roll.
 If you don’t like Latino, you may not like Classical or Swing either.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-56-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-56-1.png" width="960" /></p>
 <p>Latino has a similar pattern when projected in the second and third dimension,
 interacting with many other important contributors to these dimensions. It is mainly
 separated by the third dimension, which compliments earlier analysis.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-58-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-58-1.png" width="960" /></p>
 <p>The Bootstrap ratio can be sub-categorized for each binned variables. For example,
 Latino was binned from 1 to 5 with 5 being a high preference for Latino music. The
 bootstrap ratio for Latino 1, Latino 2, etc. can be computed. The analysis for the binned
 variables being geometrically projected across the first three dimension correspond
 with stable binned variables in the pseduo-bootstrap ratios.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-60-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-60-2.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-60-3.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-60-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-60-2.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-60-3.png" width="960" /></p>
 <p>If we look at the distribution color with gender, it is heterogeneous with blue
 (males) forming an umbrella shape and being lower than the pink (females).</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-61-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-61-1.png" width="960" /></p>
 <p>The Bootstrap interval allows us to form a 95% of resampling map around the mean
 the specific gender. We see that slightly overlap and do not form distinct group.
 So while the plot of the observation look heterogeneous, it is statistically
 homogeneous.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-62-1.png" width="960" /></p>
-<p><img src="_main_files/figure-html/unnamed-chunk-63-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-62-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-63-1.png" width="960" /></p>
 <p>As stated earlier, the males tend to congregate in the third quadrant more than females.
 Some males also tend to report lower rating on Classical, Swing, and Latino. Thus,
 the tolerance interval gives a better visualization, via a convex hull, for how
 some males report their music preferences in comparison to females. However,
 this should be view with caution as the confidence intervals overlap between
 types of gender.</p>
-<p><img src="_main_files/figure-html/unnamed-chunk-64-1.png" width="960" /></p>
+<p><img src="main_files/figure-html/unnamed-chunk-64-1.png" width="960" /></p>
 </div>
 <div id="summary-2" class="section level2" number="3.4">
 <h2><span class="header-section-number">3.4</span> Summary</h2>
