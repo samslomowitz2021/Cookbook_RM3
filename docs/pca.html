@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 1 Inference Prinicipal Component Analysis | Multivariate Statistics for Data Science</title>
+  <meta name="description" content="RM3 Cookbook" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 1 Inference Prinicipal Component Analysis | Multivariate Statistics for Data Science" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:image" content="https://www.flickr.com/gp/194778449@N08/488nZ3" />
+  <meta property="og:description" content="RM3 Cookbook" />
+  <meta name="github-repo" content="samslomowitz2021/bookdown40" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 1 Inference Prinicipal Component Analysis | Multivariate Statistics for Data Science" />
+  
+  <meta name="twitter:description" content="RM3 Cookbook" />
+  <meta name="twitter:image" content="https://www.flickr.com/gp/194778449@N08/488nZ3" />
+
+<meta name="author" content="Samuel Slomowitz" />
+
+
+<meta name="date" content="2022-01-04" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="ca.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./"><img src="img.png" width="280"></a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="pca.html"><a href="pca.html"><i class="fa fa-check"></i><b>1</b> Inference Prinicipal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="pca.html"><a href="pca.html#description-of-method-and-data"><i class="fa fa-check"></i><b>1.1</b> Description of Method and Data</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="pca.html"><a href="pca.html#method"><i class="fa fa-check"></i><b>1.1.1</b> Method</a></li>
+<li class="chapter" data-level="1.1.2" data-path="pca.html"><a href="pca.html#data"><i class="fa fa-check"></i><b>1.1.2</b> Data</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="pca.html"><a href="pca.html#heatmap-correlation-matrix"><i class="fa fa-check"></i><b>1.2</b> Heatmap: Correlation matrix</a></li>
+<li class="chapter" data-level="1.3" data-path="pca.html"><a href="pca.html#analysis"><i class="fa fa-check"></i><b>1.3</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="pca.html"><a href="pca.html#testing-the-eigenvalues"><i class="fa fa-check"></i><b>1.3.1</b> Testing the eigenvalues</a></li>
+<li class="chapter" data-level="1.3.2" data-path="pca.html"><a href="pca.html#scree-plot-with-permutation-testing"><i class="fa fa-check"></i><b>1.3.2</b> Scree Plot with Permutation Testing</a></li>
+<li class="chapter" data-level="1.3.3" data-path="pca.html"><a href="pca.html#row-factor-scores"><i class="fa fa-check"></i><b>1.3.3</b> Row Factor Scores</a></li>
+<li class="chapter" data-level="1.3.4" data-path="pca.html"><a href="pca.html#row-factor-scores-with-means"><i class="fa fa-check"></i><b>1.3.4</b> Row Factor Scores with Means</a></li>
+<li class="chapter" data-level="1.3.5" data-path="pca.html"><a href="pca.html#row-factor-scores-with-tolerance-interval"><i class="fa fa-check"></i><b>1.3.5</b> Row Factor Scores with Tolerance interval</a></li>
+<li class="chapter" data-level="1.3.6" data-path="pca.html"><a href="pca.html#bootstrap-interval"><i class="fa fa-check"></i><b>1.3.6</b> Bootstrap interval</a></li>
+<li class="chapter" data-level="1.3.7" data-path="pca.html"><a href="pca.html#loadings"><i class="fa fa-check"></i><b>1.3.7</b> Loadings</a></li>
+<li class="chapter" data-level="1.3.8" data-path="pca.html"><a href="pca.html#dimensions-2-and-3"><i class="fa fa-check"></i><b>1.3.8</b> Dimensions 2 and 3</a></li>
+<li class="chapter" data-level="1.3.9" data-path="pca.html"><a href="pca.html#loadings-circle-of-correlation"><i class="fa fa-check"></i><b>1.3.9</b> Loadings / Circle of Correlation</a></li>
+<li class="chapter" data-level="1.3.10" data-path="pca.html"><a href="pca.html#contribution-barplots-and-bootstrap-ratios-on-variables"><i class="fa fa-check"></i><b>1.3.10</b> Contribution barplots and Bootstrap Ratios on Variables</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="pca.html"><a href="pca.html#summary"><i class="fa fa-check"></i><b>1.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="ca.html"><a href="ca.html"><i class="fa fa-check"></i><b>2</b> Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="ca.html"><a href="ca.html#the-data-pattern"><i class="fa fa-check"></i><b>2.1</b> The data pattern</a></li>
+<li class="chapter" data-level="2.2" data-path="ca.html"><a href="ca.html#analysis-1"><i class="fa fa-check"></i><b>2.2</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="ca.html"><a href="ca.html#scree-plot"><i class="fa fa-check"></i><b>2.2.1</b> Scree Plot</a></li>
+<li class="chapter" data-level="2.2.2" data-path="ca.html"><a href="ca.html#plot-the-asymmetric-factor-scores"><i class="fa fa-check"></i><b>2.2.2</b> Plot the asymmetric factor scores</a></li>
+<li class="chapter" data-level="2.2.3" data-path="ca.html"><a href="ca.html#plot-the-symmetric-plot"><i class="fa fa-check"></i><b>2.2.3</b> Plot the symmetric plot</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="ca.html"><a href="ca.html#summary-1"><i class="fa fa-check"></i><b>2.3</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="mca.html"><a href="mca.html"><i class="fa fa-check"></i><b>3</b> Multiple Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="mca.html"><a href="mca.html#cleaning-the-data"><i class="fa fa-check"></i><b>3.1</b> Cleaning the data</a></li>
+<li class="chapter" data-level="3.2" data-path="mca.html"><a href="mca.html#recoding-the-data"><i class="fa fa-check"></i><b>3.2</b> Recoding the data</a></li>
+<li class="chapter" data-level="3.3" data-path="mca.html"><a href="mca.html#analysis-2"><i class="fa fa-check"></i><b>3.3</b> Analysis</a></li>
+<li class="chapter" data-level="3.4" data-path="mca.html"><a href="mca.html#summary-2"><i class="fa fa-check"></i><b>3.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="bada.html"><a href="bada.html"><i class="fa fa-check"></i><b>4</b> Barycentric Discriminant Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="bada.html"><a href="bada.html#cleaning-the-data-1"><i class="fa fa-check"></i><b>4.1</b> Cleaning the data</a></li>
+<li class="chapter" data-level="4.2" data-path="bada.html"><a href="bada.html#heat-map"><i class="fa fa-check"></i><b>4.2</b> Heat map</a></li>
+<li class="chapter" data-level="4.3" data-path="bada.html"><a href="bada.html#analysis-3"><i class="fa fa-check"></i><b>4.3</b> Analysis</a></li>
+<li class="chapter" data-level="4.4" data-path="bada.html"><a href="bada.html#fixed-confusion-matrix"><i class="fa fa-check"></i><b>4.4</b> Fixed Confusion Matrix</a></li>
+<li class="chapter" data-level="4.5" data-path="bada.html"><a href="bada.html#random-confusion-matrix"><i class="fa fa-check"></i><b>4.5</b> Random Confusion Matrix</a></li>
+<li class="chapter" data-level="4.6" data-path="bada.html"><a href="bada.html#summary-3"><i class="fa fa-check"></i><b>4.6</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dica.html"><a href="dica.html"><i class="fa fa-check"></i><b>5</b> Discriminant Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="5.0.1" data-path="dica.html"><a href="dica.html#heatmap"><i class="fa fa-check"></i><b>5.0.1</b> Heatmap</a></li>
+<li class="chapter" data-level="5.1" data-path="dica.html"><a href="dica.html#analysis-4"><i class="fa fa-check"></i><b>5.1</b> Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="dica.html"><a href="dica.html#fixed-confusion-matrix-1"><i class="fa fa-check"></i><b>5.2</b> Fixed Confusion Matrix</a></li>
+<li class="chapter" data-level="5.3" data-path="dica.html"><a href="dica.html#random-confusion-matrix-1"><i class="fa fa-check"></i><b>5.3</b> Random Confusion Matrix</a></li>
+<li class="chapter" data-level="5.4" data-path="dica.html"><a href="dica.html#summary-4"><i class="fa fa-check"></i><b>5.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="plsc.html"><a href="plsc.html"><i class="fa fa-check"></i><b>6</b> Partial Least Square Correlation</a>
+<ul>
+<li class="chapter" data-level="6.0.1" data-path="plsc.html"><a href="plsc.html#correlation-plot"><i class="fa fa-check"></i><b>6.0.1</b> Correlation plot</a></li>
+<li class="chapter" data-level="6.0.2" data-path="plsc.html"><a href="plsc.html#analysis-5"><i class="fa fa-check"></i><b>6.0.2</b> Analysis</a></li>
+<li class="chapter" data-level="6.0.3" data-path="plsc.html"><a href="plsc.html#inferences"><i class="fa fa-check"></i><b>6.0.3</b> Inferences</a></li>
+<li class="chapter" data-level="6.0.4" data-path="plsc.html"><a href="plsc.html#graphics"><i class="fa fa-check"></i><b>6.0.4</b> Graphics</a></li>
+<li class="chapter" data-level="6.0.5" data-path="plsc.html"><a href="plsc.html#color-scheme-for-gender"><i class="fa fa-check"></i><b>6.0.5</b> Color Scheme for Gender</a></li>
+<li class="chapter" data-level="6.0.6" data-path="plsc.html"><a href="plsc.html#latent-variable-1"><i class="fa fa-check"></i><b>6.0.6</b> Latent variable 1</a></li>
+<li class="chapter" data-level="6.0.7" data-path="plsc.html"><a href="plsc.html#confidence-intervals"><i class="fa fa-check"></i><b>6.0.7</b> Confidence Intervals</a></li>
+<li class="chapter" data-level="6.0.8" data-path="plsc.html"><a href="plsc.html#contributions-for-lv1"><i class="fa fa-check"></i><b>6.0.8</b> Contributions for LV1</a></li>
+<li class="chapter" data-level="6.0.9" data-path="plsc.html"><a href="plsc.html#bootstrap"><i class="fa fa-check"></i><b>6.0.9</b> Bootstrap</a></li>
+<li class="chapter" data-level="6.0.10" data-path="plsc.html"><a href="plsc.html#latent-variable-2"><i class="fa fa-check"></i><b>6.0.10</b> Latent variable 2</a></li>
+<li class="chapter" data-level="6.0.11" data-path="plsc.html"><a href="plsc.html#confidence-intervals-1"><i class="fa fa-check"></i><b>6.0.11</b> Confidence Intervals</a></li>
+<li class="chapter" data-level="6.0.12" data-path="plsc.html"><a href="plsc.html#contributions-for-lv2"><i class="fa fa-check"></i><b>6.0.12</b> Contributions for LV2</a></li>
+<li class="chapter" data-level="6.0.13" data-path="plsc.html"><a href="plsc.html#bootstrap-1"><i class="fa fa-check"></i><b>6.0.13</b> Bootstrap</a></li>
+<li class="chapter" data-level="6.0.14" data-path="plsc.html"><a href="plsc.html#conclusion"><i class="fa fa-check"></i><b>6.0.14</b> Conclusion</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="distatis.html"><a href="distatis.html"><i class="fa fa-check"></i><b>7</b> DISTATIS</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="distatis.html"><a href="distatis.html#analysis-6"><i class="fa fa-check"></i><b>7.1</b> Analysis</a></li>
+<li class="chapter" data-level="7.2" data-path="distatis.html"><a href="distatis.html#graphs"><i class="fa fa-check"></i><b>7.2</b> Graphs</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="distatis.html"><a href="distatis.html#summary-5"><i class="fa fa-check"></i><b>7.2.1</b> Summary</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="mfa.html"><a href="mfa.html"><i class="fa fa-check"></i><b>8</b> MFA</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="mfa.html"><a href="mfa.html#analysis-7"><i class="fa fa-check"></i><b>8.1</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="mfa.html"><a href="mfa.html#graphs-1"><i class="fa fa-check"></i><b>8.1.1</b> Graphs</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="mfa.html"><a href="mfa.html#summary-6"><i class="fa fa-check"></i><b>8.2</b> Summary</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/samslomowitz2021/bookdown40.git" target="blank">GitHub</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Multivariate Statistics for Data Science</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="pca" class="section level1" number="1">
+<h1><span class="header-section-number">Chapter 1</span> Inference Prinicipal Component Analysis</h1>
+<div id="description-of-method-and-data" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Description of Method and Data</h2>
+<div id="method" class="section level3" number="1.1.1">
+<h3><span class="header-section-number">1.1.1</span> Method</h3>
+<p>In data analysis, PCA reduces the dimensions in a multivariate data set.
+It maximizes variance on uncorrelated variables, which are created at the
+time of data analysis (Jolliffe and Cadima, 2016). The first principal component
+extracts the maximum explained variance or inertia from the data table.The
+second component must be orthogonal to the first, and have the second largest variance.
+The rest of the components take on the next biggest level of variance until the
+final component retains the smallest level of variance. Factor scores are the
+new values corresponding to the observations and can be projected
+on to the principal components graphically.</p>
+</div>
+<div id="data" class="section level3" number="1.1.2">
+<h3><span class="header-section-number">1.1.2</span> Data</h3>
+<p>The data set is a survey of over 927 participants, after omitting missing
+observations with missing values, on 19 variables related to
+music. Survey questions are rated on an scale 0-5 with 0 being low and 5 being high.
+For example, a 5 on Music Interest is high preference for an interest in music while
+a 1 on Tempo preference indicates a liking of slow tempo. The age of the
+participants is 15 to 30. The survey assessed music
+preferences.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="pca.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df5) <span class="sc">%&gt;%</span></span>
+<span id="cb1-2"><a href="pca.html#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-3"><a href="pca.html#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_paper</span>(<span class="st">&quot;hover&quot;</span>, <span class="at">full_width =</span> F)</span></code></pre></div>
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Music
+</th>
+<th style="text-align:right;">
+Fast
+</th>
+<th style="text-align:right;">
+Dance
+</th>
+<th style="text-align:right;">
+Folk
+</th>
+<th style="text-align:right;">
+Country
+</th>
+<th style="text-align:right;">
+Classical
+</th>
+<th style="text-align:right;">
+Musical
+</th>
+<th style="text-align:right;">
+Pop
+</th>
+<th style="text-align:right;">
+Rock
+</th>
+<th style="text-align:right;">
+Metal
+</th>
+<th style="text-align:right;">
+Punk
+</th>
+<th style="text-align:right;">
+Hiphop
+</th>
+<th style="text-align:right;">
+Reggae
+</th>
+<th style="text-align:right;">
+Swing
+</th>
+<th style="text-align:right;">
+RnR
+</th>
+<th style="text-align:right;">
+Alt
+</th>
+<th style="text-align:right;">
+Lat
+</th>
+<th style="text-align:right;">
+Techno
+</th>
+<th style="text-align:right;">
+Opera
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="heatmap-correlation-matrix" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Heatmap: Correlation matrix</h2>
+<p>The correlation plot show that Punk and Dance, Rock and Roll and Rock, Opera and
+Classical, and Techno and Dance are fairly correlation to each while Metal, Punk
+and Rock form a strong cluster of correlation values. There is an argument to be
+made that a covariance matrix is best for survey data, that is a matrix that is not
+normalized so that questions with a large variance take up more importance than
+questions with a small variance. In other words, to equalize the questions by scaling
+would take away the effect of question father from the center of gravity.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="pca.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(<span class="fu">cor</span>(mt25),        <span class="co"># Correlation matrix</span></span>
+<span id="cb2-2"><a href="pca.html#cb2-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">method =</span> <span class="st">&quot;shade&quot;</span>, <span class="co"># Correlation plot method</span></span>
+<span id="cb2-3"><a href="pca.html#cb2-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">type =</span> <span class="st">&quot;full&quot;</span>,    <span class="co"># Correlation plot style (also &quot;upper&quot; and &quot;lower&quot;)</span></span>
+<span id="cb2-4"><a href="pca.html#cb2-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">diag =</span> <span class="cn">TRUE</span>,      <span class="co"># If TRUE (default), adds the diagonal</span></span>
+<span id="cb2-5"><a href="pca.html#cb2-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">tl.col =</span> <span class="st">&quot;black&quot;</span>, <span class="co"># Labels color</span></span>
+<span id="cb2-6"><a href="pca.html#cb2-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">bg =</span> <span class="st">&quot;white&quot;</span>,     <span class="co"># Background color</span></span>
+<span id="cb2-7"><a href="pca.html#cb2-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">&quot;&quot;</span>,       <span class="co"># Main title</span></span>
+<span id="cb2-8"><a href="pca.html#cb2-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="cn">NULL</span>) </span></code></pre></div>
+<p><img src="_main_files/figure-html/correlation%20plot-1.png" width="672" /></p>
+</div>
+<div id="analysis" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Analysis</h2>
+<p>The variable inf.pca contains descriptive and inference data. The eigenvalues,
+for example, are the amount of variance in the corresponding principal
+components.</p>
+<p>I decided to run a seed set to generate a consistent set of random sample to
+make my functions reproducible.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="pca.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">91</span>)</span></code></pre></div>
+<p>A PCA with inference was run using epPCA.inference.battery() using scaled and
+centered data. Permutation testing and bootstraping were run as well.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="pca.html#cb4-1" aria-hidden="true" tabindex="-1"></a>res_pcaInf <span class="ot">&lt;-</span> <span class="fu">epPCA.inference.battery</span>(df5, <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="st">&quot;SS1&quot;</span>,</span>
+<span id="cb4-2"><a href="pca.html#cb4-2" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">DESIGN =</span> df4<span class="sc">$</span>Gender, <span class="at">graphs =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-3"><a href="pca.html#cb4-3" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">test.iters =</span> <span class="dv">999</span>)</span></code></pre></div>
+<div id="testing-the-eigenvalues" class="section level3" number="1.3.1">
+<h3><span class="header-section-number">1.3.1</span> Testing the eigenvalues</h3>
+<p>I decided to remove the code for the histograms of the eigenvalues as it showed
+a p-value of much less than 0.05. Thus, the eigenvalues were shown to be
+significant. It is a good practice to personally run a permutation test on
+eigenvalues for inference PCA, as this includes inferential statistical methods
+like bootstrap that may not have intrinsic value without a visualization
+technique like a histogram of the eigenvalues.</p>
+</div>
+<div id="scree-plot-with-permutation-testing" class="section level3" number="1.3.2">
+<h3><span class="header-section-number">1.3.2</span> Scree Plot with Permutation Testing</h3>
+<p>The scree plot is a visualization of the eigenvalues that contain the most
+explained variance along with statistical significance indicated by the color
+violet and non-statistical significant indicated by the color black. The
+significance level is based on a permutation test, which is a resampling without
+replacement. Thus, the null hypothesis can be evaluated to be true or false.</p>
+<p>Since three dimensions are significant, I will be creating two sets of factor
+score plots. The Scree plot is independent of the DESIGN variable.
+The Scree Plot revealed that at least three eigenvalues are important for the
+component analysis.</p>
+<p>The elbow-rule states that when the screen plot goes from a step decline to a flat
+horizontal, the dimension on the steep-decline, or the first three dimensions in our case,
+are of importance.</p>
+<p>It is important to center in PCA since the mean contains the largest amount of
+explained variance. Thus, if the data is not centered, the first dimension
+would capture the variance that the mean contributed to the data set.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="pca.html#cb5-1" aria-hidden="true" tabindex="-1"></a>my.scree <span class="ot">&lt;-</span> <span class="fu">PlotScree</span>(<span class="at">ev =</span> res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>ExPosition.Data<span class="sc">$</span>eigs,</span>
+<span id="cb5-2"><a href="pca.html#cb5-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">p.ev =</span> res_pcaInf<span class="sc">$</span>Inference.Data<span class="sc">$</span>components<span class="sc">$</span>p.vals)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="row-factor-scores" class="section level3" number="1.3.3">
+<h3><span class="header-section-number">1.3.3</span> Row Factor Scores</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="pca.html#cb6-1" aria-hidden="true" tabindex="-1"></a>new_color <span class="ot">=</span> res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>Plotting.Data<span class="sc">$</span>fi.col</span>
+<span id="cb6-2"><a href="pca.html#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="pca.html#cb6-3" aria-hidden="true" tabindex="-1"></a>new_color <span class="ot">=</span> <span class="fu">recode</span>(new_color, <span class="st">&quot;#84BF30&quot;</span> <span class="ot">=</span> <span class="st">&quot;blue&quot;</span>, <span class="st">&quot;#305ABF&quot;</span> <span class="ot">=</span> <span class="st">&quot;deeppink&quot;</span>)</span>
+<span id="cb6-4"><a href="pca.html#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="pca.html#cb6-5" aria-hidden="true" tabindex="-1"></a>my.fi.plot <span class="ot">&lt;-</span> <span class="fu">createFactorMap</span>(res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>ExPosition.Data<span class="sc">$</span>fi, <span class="at">display.labels =</span> <span class="cn">FALSE</span>, <span class="co"># data</span></span>
+<span id="cb6-6"><a href="pca.html#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="pca.html#cb6-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">title =</span> <span class="st">&quot;Music Row Factor Scores&quot;</span>, <span class="co"># title of the plot</span></span>
+<span id="cb6-8"><a href="pca.html#cb6-8" aria-hidden="true" tabindex="-1"></a>                            <span class="at">axis1 =</span> <span class="dv">1</span>, <span class="at">axis2 =</span> <span class="dv">2</span>, <span class="co"># which component for x and y axes</span></span>
+<span id="cb6-9"><a href="pca.html#cb6-9" aria-hidden="true" tabindex="-1"></a>                            <span class="at">pch =</span> <span class="dv">19</span>, <span class="co"># the shape of the dots (google `pch`)</span></span>
+<span id="cb6-10"><a href="pca.html#cb6-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">cex =</span> <span class="dv">2</span>, <span class="co"># the size of the dots</span></span>
+<span id="cb6-11"><a href="pca.html#cb6-11" aria-hidden="true" tabindex="-1"></a>                            <span class="at">text.cex =</span> <span class="fl">2.5</span>, <span class="co"># the size of the text</span></span>
+<span id="cb6-12"><a href="pca.html#cb6-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">alpha.points =</span> <span class="fl">0.1</span>,</span>
+<span id="cb6-13"><a href="pca.html#cb6-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">col.points =</span> new_color, <span class="co"># color of the dots</span></span>
+<span id="cb6-14"><a href="pca.html#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="pca.html#cb6-15" aria-hidden="true" tabindex="-1"></a>                            <span class="at">col.labels =</span> res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>Plotting.Data<span class="sc">$</span>fi.col, <span class="co"># color for labels of dots</span></span>
+<span id="cb6-16"><a href="pca.html#cb6-16" aria-hidden="true" tabindex="-1"></a>                            )</span></code></pre></div>
+<p>The observation factor scores are projected on the first two dimension with the
+DESIGN variable of gender, blue for males and pink for females. It seems at first
+glance to be uniformly dispersed, but subsequent analytic tools will confirm that or
+reveal subtle gender distinctions.</p>
+<p>As the Scree plot indicated, the Row Factor Score plot shows 20% of the variance
+on the x-axis or first dimension and 14% of the variance on the y-axis or second dimension.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="pca.html#cb7-1" aria-hidden="true" tabindex="-1"></a>fi.plot <span class="ot">&lt;-</span> my.fi.plot<span class="sc">$</span>zeMap <span class="sc">+</span> fi.labels <span class="co"># you need this line to be able to save them in the end</span></span>
+<span id="cb7-2"><a href="pca.html#cb7-2" aria-hidden="true" tabindex="-1"></a>fi.plot</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="row-factor-scores-with-means" class="section level3" number="1.3.4">
+<h3><span class="header-section-number">1.3.4</span> Row Factor Scores with Means</h3>
+<p>Here the means of the row factor scores under the DESIGN of gender show
+a clear separation along the second dimension and a subtle distinction along
+the first dimension.</p>
+<p>As we project the variables later on, we will be able to link gender with certain
+music preferences. Thus, we can make sense of the large data table with nineteen
+dimensions and thousands of data points.</p>
+<p><img src="_main_files/figure-html/fimeanplot-1.png" width="672" /></p>
+</div>
+<div id="row-factor-scores-with-tolerance-interval" class="section level3" number="1.3.5">
+<h3><span class="header-section-number">1.3.5</span> Row Factor Scores with Tolerance interval</h3>
+<p>The Tolerance Interval contains a p-value of .95 indicating geometrically where
+95% of the population lies in the factor score map. While there is much overlap,
+female group spreads towards the third quadrant while the male group
+spread toward the first quadrant. This will further quantify how we can interpret
+future graphs with specific variables going to spefific groups of observations.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="pca.html#cb8-1" aria-hidden="true" tabindex="-1"></a>TIplot <span class="ot">&lt;-</span> <span class="fu">MakeToleranceIntervals</span>(res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>ExPosition.Data<span class="sc">$</span>fi,</span>
+<span id="cb8-2"><a href="pca.html#cb8-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">design =</span> <span class="fu">as.factor</span>(df4<span class="sc">$</span>Gender),</span>
+<span id="cb8-3"><a href="pca.html#cb8-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">col =</span> grp.col[<span class="fu">row.names</span>(fi.mean)],</span>
+<span id="cb8-4"><a href="pca.html#cb8-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">line.size =</span> .<span class="dv">50</span>, </span>
+<span id="cb8-5"><a href="pca.html#cb8-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">line.type =</span> <span class="dv">3</span>,</span>
+<span id="cb8-6"><a href="pca.html#cb8-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">alpha.ellipse =</span> .<span class="dv">2</span>,</span>
+<span id="cb8-7"><a href="pca.html#cb8-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">alpha.line    =</span> .<span class="dv">4</span>,</span>
+<span id="cb8-8"><a href="pca.html#cb8-8" aria-hidden="true" tabindex="-1"></a>                            <span class="at">p.level       =</span> .<span class="dv">95</span>)</span>
+<span id="cb8-9"><a href="pca.html#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="pca.html#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># If you get some errors with this function, check the names.of.factors argument in the help.</span></span>
+<span id="cb8-11"><a href="pca.html#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="pca.html#cb8-12" aria-hidden="true" tabindex="-1"></a>fi.WithMeanTI <span class="ot">&lt;-</span> my.fi.plot<span class="sc">$</span>zeMap_background <span class="sc">+</span> my.fi.plot<span class="sc">$</span>zeMap_dots <span class="sc">+</span> </span>
+<span id="cb8-13"><a href="pca.html#cb8-13" aria-hidden="true" tabindex="-1"></a>  fi.mean.plot<span class="sc">$</span>zeMap_dots <span class="sc">+</span> fi.mean.plot<span class="sc">$</span>zeMap_text <span class="sc">+</span> TIplot <span class="sc">+</span> fi.labels</span>
+<span id="cb8-14"><a href="pca.html#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="pca.html#cb8-15" aria-hidden="true" tabindex="-1"></a>fi.WithMeanTI</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="bootstrap-interval" class="section level3" number="1.3.6">
+<h3><span class="header-section-number">1.3.6</span> Bootstrap interval</h3>
+<p>We can also add the bootstrap interval for the group means to see if these
+group means are significantly different. The BootCube has bootstapped means
+1,000 times for each group by 19 variables.It is generated by the user before
+making a confidence interval ellipse for PCA.</p>
+<p>The first step is to bootstrap the group means, with 1,000 iterations. Thus,
+we are resampling with replacement one thousand times, and we can calculate
+means and confidence intervals on those resampled sets of data.</p>
+<p>Bootstrap interval is a subset of a confidence interval, which is a statistical
+descriptor that validates if the population mean or statistic falls within say
+95% of the samples. In a bootstap inerval, the samples are the resampling data
+sets with replacement.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="pca.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Depend on the size of your data, this might take a while</span></span>
+<span id="cb9-2"><a href="pca.html#cb9-2" aria-hidden="true" tabindex="-1"></a>fi.boot <span class="ot">&lt;-</span> <span class="fu">Boot4Mean</span>(res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>ExPosition.Data<span class="sc">$</span>fi,</span>
+<span id="cb9-3"><a href="pca.html#cb9-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">design =</span> df4<span class="sc">$</span>Gender,</span>
+<span id="cb9-4"><a href="pca.html#cb9-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">niter =</span> <span class="dv">1000</span>)</span>
+<span id="cb9-5"><a href="pca.html#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check what you have</span></span>
+<span id="cb9-6"><a href="pca.html#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#fi.boot</span></span>
+<span id="cb9-7"><a href="pca.html#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="pca.html#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># What is the cube? Check the first 4 tables. You don&#39;t need to include this in </span></span>
+<span id="cb9-9"><a href="pca.html#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># your output, because it&#39;s a lot of junk text.</span></span>
+<span id="cb9-10"><a href="pca.html#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#fi.boot$BootCube[,,1:4]</span></span></code></pre></div>
+<p>On the plot of the bootstrap interval, the bootstrap intervals closely surrounds
+the groups means, and they are non-overlapping. Where as the tolerance interval
+geogrpahically outlines 95% of the observations, the bootstrap interval outlines
+95% of the means from the resampling. Thus 95% of the group means of males are
+distinct from 95% of the group means of females.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="pca.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check other parameters you can change for this function</span></span>
+<span id="cb10-2"><a href="pca.html#cb10-2" aria-hidden="true" tabindex="-1"></a>bootCI4mean <span class="ot">&lt;-</span> <span class="fu">MakeCIEllipses</span>(fi.boot<span class="sc">$</span>BootCube[,<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>),], <span class="co"># get the first two components</span></span>
+<span id="cb10-3"><a href="pca.html#cb10-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">col =</span> grp.col[<span class="fu">row.names</span>(fi.mean)])</span>
+<span id="cb10-4"><a href="pca.html#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="pca.html#cb10-5" aria-hidden="true" tabindex="-1"></a>fi.WithMeanCI <span class="ot">&lt;-</span> my.fi.plot<span class="sc">$</span>zeMap_background <span class="sc">+</span> bootCI4mean <span class="sc">+</span> </span>
+<span id="cb10-6"><a href="pca.html#cb10-6" aria-hidden="true" tabindex="-1"></a>  my.fi.plot<span class="sc">$</span>zeMap_dots <span class="sc">+</span> fi.mean.plot<span class="sc">$</span>zeMap_dots <span class="sc">+</span> </span>
+<span id="cb10-7"><a href="pca.html#cb10-7" aria-hidden="true" tabindex="-1"></a>  fi.mean.plot<span class="sc">$</span>zeMap_text <span class="sc">+</span> fi.labels</span>
+<span id="cb10-8"><a href="pca.html#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="pca.html#cb10-9" aria-hidden="true" tabindex="-1"></a>fi.WithMeanCI</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+<div id="loadings" class="section level3" number="1.3.7">
+<h3><span class="header-section-number">1.3.7</span> Loadings</h3>
+<p>Loadings can be defined several ways such as the sum of squares of 1 single component
+summing to 1, the sum of squares of a single variables summing to 1, or the sum of squares of
+all of the variables summing to q or the total inertia, which is the total variance.</p>
+<p>Metal, Punk, Rock, and Alternative are separated from the other variables
+along the second dimension while Techno, Hiphop, Pop, and Dance are separated
+fromthe other variables alond the first dimension.</p>
+<p>Since mean of males was above the x-axis, males tend to like metal, punk, rock,
+and alternative. Females tend to like everything else, especially Latino, Musical,
+Folk, Swing, Classical, and Rock and Roll. These later groups go in the positive direction
+toward females and the negative direction can be projected back towards males.
+Thus, males do not like Latino, Musical, Folk, Swing, Classical, and Rock and
+Roll.</p>
+<p>Additionally, the first dimension seems to separate Techo, Hiphop, Pop, and Dance,
+which tend to be fast tempo songs from the rest of the genres which range
+from moderate to slow.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>The variance of each component is plotted for the factor scores
+for the variables. We see that the biggest amount of variance comes from those
+away from the center of gravity. Thus, Metal, Punk, Rock, Alternative, Rock and Roll,
+Opera, Swing, Musical, Latino, Pop, Dance, and Hiphop capture the largest
+amounts of variance compared to the other variables.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+<div id="dimensions-2-and-3" class="section level3" number="1.3.8">
+<h3><span class="header-section-number">1.3.8</span> Dimensions 2 and 3</h3>
+<p>Below are the Components 2 and 3 plotted based on the results of the Scree Plot.
+The pink dot (females) are more dispersed away from the center of gravity and in
+third and fourth quadrant. The blue dot (males) overlap in the center of gravity
+and above the x-axis. The third dimension retains 11% of the total variance of the
+data set.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p>The males and females seem to form distinct groups. Further, it is surprising
+that the female is still close to the origin. However, upon closer examination
+there are several female observations on the periphery, especially in the second
+and third quadrant. Here, the gender DESIGN is split along the second dimension.
+The third dimension shows little group distinction along the DESIGN of gender.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p>The tolerance interval seems to show a convex hull with the protrusion of 95% of
+female observations extending into the second, third, and fouth quadrants.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>The Confidence intervals are non-overlapping, indicating a clear separation
+between groups.</p>
+</div>
+<div id="loadings-circle-of-correlation" class="section level3" number="1.3.9">
+<h3><span class="header-section-number">1.3.9</span> Loadings / Circle of Correlation</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+Like before, the second dimension shows that males like Rock, Punk, Metal, and
+Alternative while females like everything else. The third dimension shows that
+males like the same genres of Rock, Punk, Metal, and Alternative while females
+like Latino, Musical, Opera, and Classical. This is consistent to what was seen
+in the first dimension.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<ul>
+<li><p>Component 2: Rock Concert Music vs. everything else
+Interpret: Males align with the Rock Concert Music genres.</p></li>
+<li><p>Component 3: Orchestra, Folk, and Ethic (Latino) music vs. everything else.
+Interpret: Females align with the Orchestra, Folk, and Ethic (Latino) music
+genres.</p></li>
+</ul>
+</div>
+<div id="contribution-barplots-and-bootstrap-ratios-on-variables" class="section level3" number="1.3.10">
+<h3><span class="header-section-number">1.3.10</span> Contribution barplots and Bootstrap Ratios on Variables</h3>
+<p>Here we are resampling the factor scores for the variables with replacement to
+generate benchmarks for how stable the data variables are in the analysis,
+specifically testing the stability of the original results. If a set of variables in the
+analysis are key to the conclusions, one can see if they are shown to also be
+important in the bootstrap ratios.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="pca.html#cb11-1" aria-hidden="true" tabindex="-1"></a>signed.ctrJ <span class="ot">&lt;-</span> res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>ExPosition.Data<span class="sc">$</span>cj <span class="sc">*</span> <span class="fu">sign</span>(res_pcaInf<span class="sc">$</span>Fixed.Data<span class="sc">$</span>ExPosition.Data<span class="sc">$</span>fj)</span>
+<span id="cb11-2"><a href="pca.html#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="pca.html#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># plot contributions for component 1</span></span>
+<span id="cb11-4"><a href="pca.html#cb11-4" aria-hidden="true" tabindex="-1"></a>ctrJ<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">PrettyBarPlot2</span>(signed.ctrJ[,<span class="dv">1</span>],</span>
+<span id="cb11-5"><a href="pca.html#cb11-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">threshold =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="fu">NROW</span>(signed.ctrJ),</span>
+<span id="cb11-6"><a href="pca.html#cb11-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">font.size =</span> <span class="dv">3</span>,</span>
+<span id="cb11-7"><a href="pca.html#cb11-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">signifOnly =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-8"><a href="pca.html#cb11-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">color4bar =</span> gplots<span class="sc">::</span><span class="fu">col2hex</span>(df5.col), <span class="co"># we need hex code</span></span>
+<span id="cb11-9"><a href="pca.html#cb11-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">ylab =</span> <span class="st">&#39;Contributions&#39;</span>,</span>
+<span id="cb11-10"><a href="pca.html#cb11-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">ylim =</span> <span class="fu">c</span>(<span class="fl">1.2</span><span class="sc">*</span><span class="fu">min</span>(signed.ctrJ[,<span class="dv">1</span>]), <span class="fl">1.2</span><span class="sc">*</span><span class="fu">max</span>(signed.ctrJ[,<span class="dv">1</span>])),</span>
+<span id="cb11-11"><a href="pca.html#cb11-11" aria-hidden="true" tabindex="-1"></a>                         <span class="at">horizontal =</span> <span class="cn">FALSE</span></span>
+<span id="cb11-12"><a href="pca.html#cb11-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Contribution barplots&quot;</span>, <span class="at">subtitle =</span> <span class="st">&#39;Component 1: Variable Contributions (Signed)&#39;</span>)</span></code></pre></div>
+<p>The the next line of code puts the figures side to side.</p>
+<p>As stated before, males were explained to like Rock, Punk, Metal, and Alternative
+as shown by the second dimension. Punk and Metal are shown to contribute to the
+second dimension importantly while Rock and Alternative do not. However, all four genres
+of Rock, Punk, Metal, and Alternative have significant bootstrap ratios. Taken both
+results together, Punk and Metal can be strongly argued for both contributing to the second
+dimension enough and being stable enough to link them to the male gender over female gender
+in terms of preference.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="pca.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb12-2"><a href="pca.html#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.grob</span>(ctrJ<span class="fl">.1</span>),</span>
+<span id="cb12-3"><a href="pca.html#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.grob</span>(ctrJ<span class="fl">.2</span>),</span>
+<span id="cb12-4"><a href="pca.html#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.grob</span>(ba001.BR1),</span>
+<span id="cb12-5"><a href="pca.html#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.grob</span>(ba002.BR2),</span>
+<span id="cb12-6"><a href="pca.html#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">2</span>,<span class="at">nrow =</span> <span class="dv">2</span>,</span>
+<span id="cb12-7"><a href="pca.html#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">top =</span> <span class="fu">textGrob</span>(<span class="st">&quot;Barplots for variables&quot;</span>, <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">18</span>, <span class="at">font =</span> <span class="dv">3</span>))</span>
+<span id="cb12-8"><a href="pca.html#cb12-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/grid_ctrJ-1.png" width="960" /></p>
+<p>The second takeaway from above is that female survey participants showed a preference for
+Latino, Musical, Opera, and Classical as explained by the first and third dimensions.
+Opera and Classical contribute to the both the first and third dimensions while
+all four genres have significant bootstrap ratios for the first dimension and Musical, Opera,
+and Classical hve significant bootstrap ratios for the third dimension.</p>
+<p>Taken together, we can say that Opera and Classical contribute importantly to the first and
+third dimension and have significant bootstrap ratios for those dimension. Thus, we can
+strongly argue that females have a preference for Opera and Classical over male
+survey participants.</p>
+<p><img src="_main_files/figure-html/grid_ctrJ%202-1.png" width="960" />
+### Save figures to PPT</p>
+<p>The following code can give you a .pptx file with all the
+figures saved in the directory.</p>
+<p><em>REMEMBER: Never use a screen shot</em></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="pca.html#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we can save all figures to a PowerPoint</span></span>
+<span id="cb13-2"><a href="pca.html#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#savedList &lt;- saveGraph2pptx(file2Save.pptx = &#39;AllFigures_inf5&#39;, </span></span>
+<span id="cb13-3"><a href="pca.html#cb13-3" aria-hidden="true" tabindex="-1"></a>                            <span class="co">#title = &#39;All Figures for inference5&#39;, </span></span>
+<span id="cb13-4"><a href="pca.html#cb13-4" aria-hidden="true" tabindex="-1"></a>                            <span class="co">#addGraphNames = TRUE)</span></span></code></pre></div>
+</div>
+</div>
+<div id="summary" class="section level2" number="1.4">
+<h2><span class="header-section-number">1.4</span> Summary</h2>
+<p>Component 1
+Rows: Survey Participants<br />
+Cols: Fast Songs VS Slower to moderately tempo songs
+Interpret: Aside from Gender, fast/dance music differs from vs. slower to
+moderately tempo songs</p>
+<p>Component 2
+Rows: Survey Participants
+Cols: Rock Concert Music
+Interpret: Rock Concert Music differs from traditional and popular party music</p>
+<p>Males tend to prefer Rock, Punk, Metal, and Alternative as told by the second
+dimension while females tend to like Latino, Musical, Opera, and Classical as
+told by the first and third dimensions.</p>
+<p>Bibliography
+1. <a href="https://royalsocietypublishing.org/doi/10.1098/rsta.2015.0202" class="uri">https://royalsocietypublishing.org/doi/10.1098/rsta.2015.0202</a></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ca.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

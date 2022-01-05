@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 6 Partial Least Square Correlation | Multivariate Statistics for Data Science</title>
+  <meta name="description" content="RM3 Cookbook" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 6 Partial Least Square Correlation | Multivariate Statistics for Data Science" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:image" content="https://www.flickr.com/gp/194778449@N08/488nZ3" />
+  <meta property="og:description" content="RM3 Cookbook" />
+  <meta name="github-repo" content="samslomowitz2021/bookdown40" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 6 Partial Least Square Correlation | Multivariate Statistics for Data Science" />
+  
+  <meta name="twitter:description" content="RM3 Cookbook" />
+  <meta name="twitter:image" content="https://www.flickr.com/gp/194778449@N08/488nZ3" />
+
+<meta name="author" content="Samuel Slomowitz" />
+
+
+<meta name="date" content="2022-01-04" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="dica.html"/>
+<link rel="next" href="distatis.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./"><img src="img.png" width="280"></a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="pca.html"><a href="pca.html"><i class="fa fa-check"></i><b>1</b> Inference Prinicipal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="pca.html"><a href="pca.html#description-of-method-and-data"><i class="fa fa-check"></i><b>1.1</b> Description of Method and Data</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="pca.html"><a href="pca.html#method"><i class="fa fa-check"></i><b>1.1.1</b> Method</a></li>
+<li class="chapter" data-level="1.1.2" data-path="pca.html"><a href="pca.html#data"><i class="fa fa-check"></i><b>1.1.2</b> Data</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="pca.html"><a href="pca.html#heatmap-correlation-matrix"><i class="fa fa-check"></i><b>1.2</b> Heatmap: Correlation matrix</a></li>
+<li class="chapter" data-level="1.3" data-path="pca.html"><a href="pca.html#analysis"><i class="fa fa-check"></i><b>1.3</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="pca.html"><a href="pca.html#testing-the-eigenvalues"><i class="fa fa-check"></i><b>1.3.1</b> Testing the eigenvalues</a></li>
+<li class="chapter" data-level="1.3.2" data-path="pca.html"><a href="pca.html#scree-plot-with-permutation-testing"><i class="fa fa-check"></i><b>1.3.2</b> Scree Plot with Permutation Testing</a></li>
+<li class="chapter" data-level="1.3.3" data-path="pca.html"><a href="pca.html#row-factor-scores"><i class="fa fa-check"></i><b>1.3.3</b> Row Factor Scores</a></li>
+<li class="chapter" data-level="1.3.4" data-path="pca.html"><a href="pca.html#row-factor-scores-with-means"><i class="fa fa-check"></i><b>1.3.4</b> Row Factor Scores with Means</a></li>
+<li class="chapter" data-level="1.3.5" data-path="pca.html"><a href="pca.html#row-factor-scores-with-tolerance-interval"><i class="fa fa-check"></i><b>1.3.5</b> Row Factor Scores with Tolerance interval</a></li>
+<li class="chapter" data-level="1.3.6" data-path="pca.html"><a href="pca.html#bootstrap-interval"><i class="fa fa-check"></i><b>1.3.6</b> Bootstrap interval</a></li>
+<li class="chapter" data-level="1.3.7" data-path="pca.html"><a href="pca.html#loadings"><i class="fa fa-check"></i><b>1.3.7</b> Loadings</a></li>
+<li class="chapter" data-level="1.3.8" data-path="pca.html"><a href="pca.html#dimensions-2-and-3"><i class="fa fa-check"></i><b>1.3.8</b> Dimensions 2 and 3</a></li>
+<li class="chapter" data-level="1.3.9" data-path="pca.html"><a href="pca.html#loadings-circle-of-correlation"><i class="fa fa-check"></i><b>1.3.9</b> Loadings / Circle of Correlation</a></li>
+<li class="chapter" data-level="1.3.10" data-path="pca.html"><a href="pca.html#contribution-barplots-and-bootstrap-ratios-on-variables"><i class="fa fa-check"></i><b>1.3.10</b> Contribution barplots and Bootstrap Ratios on Variables</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="pca.html"><a href="pca.html#summary"><i class="fa fa-check"></i><b>1.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="ca.html"><a href="ca.html"><i class="fa fa-check"></i><b>2</b> Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="ca.html"><a href="ca.html#the-data-pattern"><i class="fa fa-check"></i><b>2.1</b> The data pattern</a></li>
+<li class="chapter" data-level="2.2" data-path="ca.html"><a href="ca.html#analysis-1"><i class="fa fa-check"></i><b>2.2</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="ca.html"><a href="ca.html#scree-plot"><i class="fa fa-check"></i><b>2.2.1</b> Scree Plot</a></li>
+<li class="chapter" data-level="2.2.2" data-path="ca.html"><a href="ca.html#plot-the-asymmetric-factor-scores"><i class="fa fa-check"></i><b>2.2.2</b> Plot the asymmetric factor scores</a></li>
+<li class="chapter" data-level="2.2.3" data-path="ca.html"><a href="ca.html#plot-the-symmetric-plot"><i class="fa fa-check"></i><b>2.2.3</b> Plot the symmetric plot</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="ca.html"><a href="ca.html#summary-1"><i class="fa fa-check"></i><b>2.3</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="mca.html"><a href="mca.html"><i class="fa fa-check"></i><b>3</b> Multiple Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="mca.html"><a href="mca.html#cleaning-the-data"><i class="fa fa-check"></i><b>3.1</b> Cleaning the data</a></li>
+<li class="chapter" data-level="3.2" data-path="mca.html"><a href="mca.html#recoding-the-data"><i class="fa fa-check"></i><b>3.2</b> Recoding the data</a></li>
+<li class="chapter" data-level="3.3" data-path="mca.html"><a href="mca.html#analysis-2"><i class="fa fa-check"></i><b>3.3</b> Analysis</a></li>
+<li class="chapter" data-level="3.4" data-path="mca.html"><a href="mca.html#summary-2"><i class="fa fa-check"></i><b>3.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="bada.html"><a href="bada.html"><i class="fa fa-check"></i><b>4</b> Barycentric Discriminant Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="bada.html"><a href="bada.html#cleaning-the-data-1"><i class="fa fa-check"></i><b>4.1</b> Cleaning the data</a></li>
+<li class="chapter" data-level="4.2" data-path="bada.html"><a href="bada.html#heat-map"><i class="fa fa-check"></i><b>4.2</b> Heat map</a></li>
+<li class="chapter" data-level="4.3" data-path="bada.html"><a href="bada.html#analysis-3"><i class="fa fa-check"></i><b>4.3</b> Analysis</a></li>
+<li class="chapter" data-level="4.4" data-path="bada.html"><a href="bada.html#fixed-confusion-matrix"><i class="fa fa-check"></i><b>4.4</b> Fixed Confusion Matrix</a></li>
+<li class="chapter" data-level="4.5" data-path="bada.html"><a href="bada.html#random-confusion-matrix"><i class="fa fa-check"></i><b>4.5</b> Random Confusion Matrix</a></li>
+<li class="chapter" data-level="4.6" data-path="bada.html"><a href="bada.html#summary-3"><i class="fa fa-check"></i><b>4.6</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dica.html"><a href="dica.html"><i class="fa fa-check"></i><b>5</b> Discriminant Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="5.0.1" data-path="dica.html"><a href="dica.html#heatmap"><i class="fa fa-check"></i><b>5.0.1</b> Heatmap</a></li>
+<li class="chapter" data-level="5.1" data-path="dica.html"><a href="dica.html#analysis-4"><i class="fa fa-check"></i><b>5.1</b> Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="dica.html"><a href="dica.html#fixed-confusion-matrix-1"><i class="fa fa-check"></i><b>5.2</b> Fixed Confusion Matrix</a></li>
+<li class="chapter" data-level="5.3" data-path="dica.html"><a href="dica.html#random-confusion-matrix-1"><i class="fa fa-check"></i><b>5.3</b> Random Confusion Matrix</a></li>
+<li class="chapter" data-level="5.4" data-path="dica.html"><a href="dica.html#summary-4"><i class="fa fa-check"></i><b>5.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="plsc.html"><a href="plsc.html"><i class="fa fa-check"></i><b>6</b> Partial Least Square Correlation</a>
+<ul>
+<li class="chapter" data-level="6.0.1" data-path="plsc.html"><a href="plsc.html#correlation-plot"><i class="fa fa-check"></i><b>6.0.1</b> Correlation plot</a></li>
+<li class="chapter" data-level="6.0.2" data-path="plsc.html"><a href="plsc.html#analysis-5"><i class="fa fa-check"></i><b>6.0.2</b> Analysis</a></li>
+<li class="chapter" data-level="6.0.3" data-path="plsc.html"><a href="plsc.html#inferences"><i class="fa fa-check"></i><b>6.0.3</b> Inferences</a></li>
+<li class="chapter" data-level="6.0.4" data-path="plsc.html"><a href="plsc.html#graphics"><i class="fa fa-check"></i><b>6.0.4</b> Graphics</a></li>
+<li class="chapter" data-level="6.0.5" data-path="plsc.html"><a href="plsc.html#color-scheme-for-gender"><i class="fa fa-check"></i><b>6.0.5</b> Color Scheme for Gender</a></li>
+<li class="chapter" data-level="6.0.6" data-path="plsc.html"><a href="plsc.html#latent-variable-1"><i class="fa fa-check"></i><b>6.0.6</b> Latent variable 1</a></li>
+<li class="chapter" data-level="6.0.7" data-path="plsc.html"><a href="plsc.html#confidence-intervals"><i class="fa fa-check"></i><b>6.0.7</b> Confidence Intervals</a></li>
+<li class="chapter" data-level="6.0.8" data-path="plsc.html"><a href="plsc.html#contributions-for-lv1"><i class="fa fa-check"></i><b>6.0.8</b> Contributions for LV1</a></li>
+<li class="chapter" data-level="6.0.9" data-path="plsc.html"><a href="plsc.html#bootstrap"><i class="fa fa-check"></i><b>6.0.9</b> Bootstrap</a></li>
+<li class="chapter" data-level="6.0.10" data-path="plsc.html"><a href="plsc.html#latent-variable-2"><i class="fa fa-check"></i><b>6.0.10</b> Latent variable 2</a></li>
+<li class="chapter" data-level="6.0.11" data-path="plsc.html"><a href="plsc.html#confidence-intervals-1"><i class="fa fa-check"></i><b>6.0.11</b> Confidence Intervals</a></li>
+<li class="chapter" data-level="6.0.12" data-path="plsc.html"><a href="plsc.html#contributions-for-lv2"><i class="fa fa-check"></i><b>6.0.12</b> Contributions for LV2</a></li>
+<li class="chapter" data-level="6.0.13" data-path="plsc.html"><a href="plsc.html#bootstrap-1"><i class="fa fa-check"></i><b>6.0.13</b> Bootstrap</a></li>
+<li class="chapter" data-level="6.0.14" data-path="plsc.html"><a href="plsc.html#conclusion"><i class="fa fa-check"></i><b>6.0.14</b> Conclusion</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="distatis.html"><a href="distatis.html"><i class="fa fa-check"></i><b>7</b> DISTATIS</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="distatis.html"><a href="distatis.html#analysis-6"><i class="fa fa-check"></i><b>7.1</b> Analysis</a></li>
+<li class="chapter" data-level="7.2" data-path="distatis.html"><a href="distatis.html#graphs"><i class="fa fa-check"></i><b>7.2</b> Graphs</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="distatis.html"><a href="distatis.html#summary-5"><i class="fa fa-check"></i><b>7.2.1</b> Summary</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="mfa.html"><a href="mfa.html"><i class="fa fa-check"></i><b>8</b> MFA</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="mfa.html"><a href="mfa.html#analysis-7"><i class="fa fa-check"></i><b>8.1</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="mfa.html"><a href="mfa.html#graphs-1"><i class="fa fa-check"></i><b>8.1.1</b> Graphs</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="mfa.html"><a href="mfa.html#summary-6"><i class="fa fa-check"></i><b>8.2</b> Summary</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/samslomowitz2021/bookdown40.git" target="blank">GitHub</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Multivariate Statistics for Data Science</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="plsc" class="section level1" number="6">
+<h1><span class="header-section-number">Chapter 6</span> Partial Least Square Correlation</h1>
+<p>Using information from the same observations, PLSC finds the correlation of
+multivariate data in two data tables. The first step is to obtain latent
+variables from linear combination similar to PCA. Analogously, these latent
+variables maximize the covariance between the tables. Additionally, factor
+scores in PCA are akin to latent variables in PLSC while loadings in PCA are
+akin to saliences in PLSC. Bootstrap and permutation tests are added to the
+analysis when inferential PSLC is indicated.</p>
+<p>A clean start is achieved by removing data and values from the working
+environment, closing all open graphic devices, and reporting the memory usage.
+The latter function, garbage collection, may help R return memory to the
+operating system after removing a large object.</p>
+<p>The following code refines the ggplot2 function by removing error messages
+for multiple overlaps.</p>
+<pre><code>## [1] 883  33</code></pre>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="plsc.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(hobbies_3) <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="plsc.html#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb38-3"><a href="plsc.html#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_paper</span>(<span class="st">&quot;hover&quot;</span>, <span class="at">full_width =</span> F)</span></code></pre></div>
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Hist
+</th>
+<th style="text-align:right;">
+Psych
+</th>
+<th style="text-align:right;">
+Politics
+</th>
+<th style="text-align:right;">
+Math
+</th>
+<th style="text-align:right;">
+Physics
+</th>
+<th style="text-align:right;">
+Internet
+</th>
+<th style="text-align:right;">
+PC
+</th>
+<th style="text-align:right;">
+Econ
+</th>
+<th style="text-align:right;">
+Bio
+</th>
+<th style="text-align:right;">
+Chem
+</th>
+<th style="text-align:right;">
+Read
+</th>
+<th style="text-align:right;">
+Geo
+</th>
+<th style="text-align:right;">
+Lang
+</th>
+<th style="text-align:right;">
+Med
+</th>
+<th style="text-align:right;">
+Law
+</th>
+<th style="text-align:right;">
+Cars
+</th>
+<th style="text-align:right;">
+Art
+</th>
+<th style="text-align:right;">
+Religion
+</th>
+<th style="text-align:right;">
+Outdoor
+</th>
+<th style="text-align:right;">
+Dance
+</th>
+<th style="text-align:right;">
+Music
+</th>
+<th style="text-align:right;">
+Writing
+</th>
+<th style="text-align:right;">
+Passive Sp
+</th>
+<th style="text-align:right;">
+Actice Sp
+</th>
+<th style="text-align:right;">
+Garden
+</th>
+<th style="text-align:right;">
+Celeb
+</th>
+<th style="text-align:right;">
+Shop
+</th>
+<th style="text-align:right;">
+STEM
+</th>
+<th style="text-align:right;">
+Theatre
+</th>
+<th style="text-align:right;">
+Friends
+</th>
+<th style="text-align:right;">
+Adrenaline Sp
+</th>
+<th style="text-align:right;">
+Pets
+</th>
+<th style="text-align:left;">
+Gender
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+female
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+female
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+female
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+female
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+female
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+male
+</td>
+</tr>
+</tbody>
+</table>
+<p>As a background to the data, I have a “hobbies” data set that is organized
+into two natural sub-sets. The first thirteen were college major themes
+(history, psychology, math) and the rest were post-college themes (law, medcine)
+as well as lifelong hobbies (friends, sports, pets). Thus, I based my two
+matrices along a linear lifespan or life journey.</p>
+<div id="correlation-plot" class="section level3" number="6.0.1">
+<h3><span class="header-section-number">6.0.1</span> Correlation plot</h3>
+<p>Politics and Law are highly correlated as is Physics and Science and
+Technology. PC and cars as well as PC and Science and Technology have
+substantial correlations as well. Biology and Chemistry with Medicine have
+very high correlations while Reading and Theater have a fair amount. An interest
+in Reading is negatively correlated with an interest in Cars.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-102-1.png" width="960" /></p>
+</div>
+<div id="analysis-5" class="section level3" number="6.0.2">
+<h3><span class="header-section-number">6.0.2</span> Analysis</h3>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="plsc.html#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Next I run the PLSC function</span></span>
+<span id="cb39-2"><a href="plsc.html#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="plsc.html#cb39-3" aria-hidden="true" tabindex="-1"></a>PLSC <span class="ot">=</span> <span class="fu">tepPLS</span>(Xmat, Ymat, <span class="at">DESIGN =</span> gender, <span class="at">graphs =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+<div id="inferences" class="section level3" number="6.0.3">
+<h3><span class="header-section-number">6.0.3</span> Inferences</h3>
+</div>
+<div id="graphics" class="section level3" number="6.0.4">
+<h3><span class="header-section-number">6.0.4</span> Graphics</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-105-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-105-2.png" width="960" /></p>
+</div>
+<div id="color-scheme-for-gender" class="section level3" number="6.0.5">
+<h3><span class="header-section-number">6.0.5</span> Color Scheme for Gender</h3>
+</div>
+<div id="latent-variable-1" class="section level3" number="6.0.6">
+<h3><span class="header-section-number">6.0.6</span> Latent variable 1</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-107-1.png" width="960" /></p>
+</div>
+<div id="confidence-intervals" class="section level3" number="6.0.7">
+<h3><span class="header-section-number">6.0.7</span> Confidence Intervals</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-108-1.png" width="960" /></p>
+</div>
+<div id="contributions-for-lv1" class="section level3" number="6.0.8">
+<h3><span class="header-section-number">6.0.8</span> Contributions for LV1</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-109-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-109-2.png" width="960" /></p>
+</div>
+<div id="bootstrap" class="section level3" number="6.0.9">
+<h3><span class="header-section-number">6.0.9</span> Bootstrap</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-110-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-110-2.png" width="960" /></p>
+</div>
+<div id="latent-variable-2" class="section level3" number="6.0.10">
+<h3><span class="header-section-number">6.0.10</span> Latent variable 2</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-111-1.png" width="960" /></p>
+</div>
+<div id="confidence-intervals-1" class="section level3" number="6.0.11">
+<h3><span class="header-section-number">6.0.11</span> Confidence Intervals</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-112-1.png" width="960" /></p>
+</div>
+<div id="contributions-for-lv2" class="section level3" number="6.0.12">
+<h3><span class="header-section-number">6.0.12</span> Contributions for LV2</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-113-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-113-2.png" width="960" /></p>
+</div>
+<div id="bootstrap-1" class="section level3" number="6.0.13">
+<h3><span class="header-section-number">6.0.13</span> Bootstrap</h3>
+<p><img src="_main_files/figure-html/unnamed-chunk-114-1.png" width="960" /><img src="_main_files/figure-html/unnamed-chunk-114-2.png" width="960" /></p>
+</div>
+<div id="conclusion" class="section level3" number="6.0.14">
+<h3><span class="header-section-number">6.0.14</span> Conclusion</h3>
+<p>Biology and Chemistry are highly correlated with Medicine while Reading is
+negatively correlated with Cars.Males and Females form distinct groups
+along the X and Y LV in both dimensions.Biology, Chemistry, Medicine correspond
+to the female group on LV1.Physics, Math, and Politics correspond to the male
+group on LV2 as does Adrenaline Sport, Cars, and Law. Shopping is a quality of
+females on LV2.</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="dica.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="distatis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

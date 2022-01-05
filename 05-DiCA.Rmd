@@ -1,0 +1,549 @@
+
+# Discriminant Correspondence Analysis {#dica}
+
+This method is an extension of Discriminant Analysis and Correspondence Analysis,
+with the caveat of containing nominal variables for the pre-defined groups. Traditionally, a
+comparison between a training data set and testing data set is done to evaluate the 
+effectiveness of the classification ability of the analysis.  
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+# Clean start ----
+rm(list = ls())
+graphics.off()
+gc()
+```
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+# parameters for pptx ----
+#leTitre   <- 'DICA: Music and Education' # my title
+#leDir     <-  paste0(getwd(),'/')   # Where I am
+#filename  <- 'DICA4Music&Education' 
+               # file name for results
+#path2save <-  paste0(leDir, filename)
+#_________________________________________________
+#_________________________________________________
+# Preamble ----
+## libraries ----
+#install.packages("Ckmeans.1d.dp")
+# Make sure to install packages last versions. 
+library(tidyverse)
+library(ExPosition)
+#install.packages('TInPosition') # if needed
+library(TExPosition)
+library(TInPosition)
+#devtools::install_github('HerveAbdi/PTCA4CATA')
+library(PTCA4CATA)
+#devtools::install_github('HerveAbdi/data4PCCAR')
+library(data4PCCAR)
+library(Ckmeans.1d.dp) # to cut 
+library(corrplot)
+library(printr)    # To pretty print tables 
+library(kableExtra)
+```
+
+This is a for loop that is used for the color designation later in this method. 
+
+
+```{r}
+## foo function ----
+# to be used later 
+foo <- function(x) {
+  xuniq <- unique(x)
+  N <- length(xuniq)
+  res <- rep(NA, N)
+  for (i in 1:N) {
+    res[i] <- sum(x == xuniq[i])
+  }
+  return(res)
+}
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# The data ----
+music = read.csv("data/music11.csv")
+data_2=music[,-1]
+rownames(data_2)=music[,1]
+
+data_3 = na.omit(data_2)
+rawData <- data_3
+
+
+```
+
+I binned the variables just like in MCA, but I did not bin the discriminant varibale of 
+alcohol consumption. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## recode as factors ----
+# Here we bin the data.
+## bin the data ---- 
+
+colnames(rawData) <- c('Music','Fast','Dance', 'Folk','Country','Classical','Musical',
+                        'Pop','Rock','Metal','Punk','Hiphop','Reg','Swing','RnR','Alt',
+                        'Lat','TT','Opera','Ed')
+
+
+rawData[,'Music'] <- plyr::mapvalues(rawData[,'Music'], 
+                                   from = c("1", "2","3","4", "5"), to = c("1","1","1","1", "2"))
+rawData[,'Fast'] <- plyr::mapvalues(rawData[,'Fast'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "3"))
+rawData[,'Dance'] <- plyr::mapvalues(rawData[,'Dance'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "3"))
+rawData[,'Folk'] <- plyr::mapvalues(rawData[,'Folk'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData[,'Country'] <- plyr::mapvalues(rawData[,'Country'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData[,'Classical'] <- plyr::mapvalues(rawData[,'Classical'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData[,'Musical'] <- plyr::mapvalues(rawData[,'Musical'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData[,'Pop'] <- plyr::mapvalues(rawData[,'Pop'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "4"))
+rawData[,'Rock'] <- plyr::mapvalues(rawData[,'Rock'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","1","2", "3"))
+rawData[,'Metal'] <- plyr::mapvalues(rawData[,'Metal'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData[,'Punk'] <- plyr::mapvalues(rawData[,'Punk'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData[,'Hiphop'] <- plyr::mapvalues(rawData[,'Hiphop'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData[,'Reg'] <- plyr::mapvalues(rawData[,'Reg'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData[,'Swing'] <- plyr::mapvalues(rawData[,'Swing'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData[,'RnR'] <- plyr::mapvalues(rawData[,'RnR'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "4"))
+rawData[,'Alt'] <- plyr::mapvalues(rawData[,'Alt'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData[,'Lat'] <- plyr::mapvalues(rawData[,'Lat'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData[,'TT'] <- plyr::mapvalues(rawData[,'TT'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData[,'Opera'] <- plyr::mapvalues(rawData[,'Opera'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+
+#rawData[,'Ed'] <- plyr::mapvalues(rawData[,'Ed'], 
+                                      #from = c("primary school","currently a primary school pupil","secondary school","college/bachelor degree","masters degree","doctorate degree"), to = c("P","C","S","B", "M", "D"))
+
+#rawData[,20] <- as.numeric(rawData[,20])
+#hist.E <- hist(rawData[,20], breaks = 20) # 1,2,4,5,6 and 3
+
+descriptors <-  rawData[,1:2]
+Xmat <-  rawData[, 3:19]
+Ymat <-  rawData[, 20]
+
+XYmat <- rawData[, 1:19]
+XYmat[,1:19] <- lapply(XYmat[,1:19], as.integer)
+```
+
+```{r}
+
+head(XYmat) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
+
+### Heatmap
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#heatmap
+XYmat_disjunct = makeNominalData(XYmat)
+
+group_sums = getMeans(XYmat_disjunct, Ymat, FUN = sum)
+
+
+corrplot(as.matrix(group_sums), is.corr = FALSE, method = "color", col = 
+           colorRampPalette(c("white", "darkblue"))(200), 
+         tl.cex = .5, cl.cex = .3)
+row_profile = group_sums/rowSums(group_sums)
+```
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE }
+rowSums(row_profile)
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+corrplot(as.matrix(row_profile), is.corr = FALSE, method = "color", col = 
+       colorRampPalette(c("white", "darkblue"))(200), tl.cex = .5, cl.cex = .3)
+```
+
+
+## Analysis
+
+
+
+```{r, warning=FALSE,message=FALSE, results=FALSE}
+#_________________________________________________
+# Computations ----
+## Run DiCA  ----
+resDiCA <- tepDICA(XYmat, 
+                   make_data_nominal = TRUE, 
+                   DESIGN = Ymat,
+                   graphs = FALSE)
+
+
+##  Inferences ----
+set.seed(70301) # set the seed
+# for random so that we all have the same results. 
+nIter <- 100
+
+resDiCA.inf <- tepDICA.inference.battery(XYmat,
+                 DESIGN = Ymat,
+                 test.iters = nIter,
+                 graphs = FALSE)
+
+```
+
+The Scree plot reveals that the there are two dimensions with the first capturing 
+almost 70% of the total variance and the second capturing the remaining amount. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+#_________________________________________________
+# Graphics ----
+##  scree. Fixed  ----
+## Fixed Effects. 
+PlotScree(ev = resDiCA$TExPosition.Data$eigs,
+  title = 'DICA Music and Education',
+  plotKaiser = FALSE, 
+  color4Kaiser = ggplot2::alpha('darkorchid4', .5),
+  lwd4Kaiser  = 2)
+# Save the plot
+a0002.Scree.sv <- recordPlot()
+#_________________________________________________
+##  EdColors ----
+AlColors <- Ymat
+
+AlColors <- dplyr::recode(AlColors, 
+            "never" = 'blue', 
+            "social drinker" = 'deeppink',
+            "drink a lot" = "green")
+       
+         
+#_________________________________________________
+##  Observations and means ----
+###   Observations ----
+#_________________________________________________
+### I-set map ----
+# a graph of the observations
+Imap <- PTCA4CATA::createFactorMap(
+  resDiCA$TExPosition.Data$fii,
+  display.labels = FALSE,
+  col.points = AlColors,
+  col.labels = AlColors,
+  cex = 1,
+  alpha.points = .2
+)
+```
+
+
+The group means for the amount of alcohol consumed are distinct: Never drinks
+is separate from the social drinkers, which both are separate from the drinks a lot
+category. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+### make labels ----
+label4Map <- createxyLabels.gen(1,2,
+           lambda = resDiCA$TExPosition.Data$eigs,
+           tau = resDiCA$TExPosition.Data$t)
+#______________________________________________________________
+### ** Fix Fi means ** ----
+# wineMeans <- resDiCA$TExPosition.Data$fi 
+# code when BADA is fixed
+EdMeans <- PTCA4CATA::getMeans(
+                    resDiCA$TExPosition.Data$fii, 
+                    Ymat)
+# a vector of color for the means
+# Explicit recoding to make sure the names match
+# Needs to be improved
+col4Means <- recode(rownames(EdMeans), 
+                  "never" = 'blue', 
+            "social drinker" = 'deeppink',
+            "drink a lot" = "green")
+### the map ----
+MapGroup <- PTCA4CATA::createFactorMap(EdMeans,
+              display.labels = TRUE,
+              constraints = Imap$constraints, # use the constraints from the main map
+              col.points = col4Means,
+              cex = 4,  # size of the dot (bigger)
+              col.labels = col4Means,
+              text.cex = 4)
+# The map with observations and group means
+a003.DICA <- Imap$zeMap + label4Map +
+    MapGroup$zeMap_dots + MapGroup$zeMap_text
+print(a003.DICA)
+```
+
+The confidence intervals confirm that the group means are distinct from each other. 
+
+
+
+```{r, warning = FALSE, echo=FALSE, message=FALSE, results = FALSE}
+#_________________________________________________
+# Confidence intervals
+### Bootstrapped CI ----
+#_________________________________________________
+# Create Confidence Interval Plots
+# use function MakeCIEllipses 
+# from package PTCA4CATA
+# First get the order of colors for the ellipses
+truc <- unique(rownames(
+   resDiCA.inf$Inference.Data$boot.data$fi.boot.data$boots))
+col4Means.ordered <- col4Means[order(truc)]
+#
+GraphElli <- PTCA4CATA::MakeCIEllipses(
+  resDiCA.inf$Inference.Data$boot.data$fi.boot.data$boots,
+  col = col4Means.ordered, 
+  centers = resDiCA$TExPosition.Data$fi,
+  p.level = .95
+)
+
+#_________________________________________________
+### Pretty Imap ----
+# create the I-map with Observations, 
+# means and confidence intervals
+#
+a004.DICA.withCI <- Imap$zeMap_background + 
+                         Imap$zeMap_dots + 
+                         MapGroup$zeMap_dots + 
+                         GraphElli + label4Map +
+  
+  ggtitle('DICA: Group Centers with CI and Observations')
+#_________________________________________________
+# plot it!
+# dev.new()
+print(a004.DICA.withCI)
+```
+
+```{r,  warning = FALSE, echo=FALSE, message=FALSE, results = FALSE}
+### Pretty Imap ----
+# create the I-map with Observations, 
+# means and confidence intervals
+#
+aa004.DICA.withCI <- Imap$zeMap_background + 
+                       
+                         GraphElli + label4Map +
+  MapGroup$zeMap_text
+  ggtitle('DICA: Group Centers with CI and Observations')
+#_________________________________________________
+# plot it!
+# dev.new()
+print(aa004.DICA.withCI)
+
+```
+
+The tolerance inteval, however, show that the spread of 95% of the observations 
+overlap between the three categorical variables for alcohol consumption. 
+
+```{r,  warning = FALSE, echo=FALSE, message=FALSE}
+#_________________________________________________
+###  with Hull ----
+Fii <- resDiCA$TExPosition.Data$fii
+
+# use function MakeToleranceIntervals 
+#     from package PTCA4CATA
+colnames(Fii) <- paste0('D', 1:2)
+GraphHull <- PTCA4CATA::MakeToleranceIntervals(
+                   Fii,
+                   design = Ymat,
+                   col = col4Means,
+                   type = 'hull',
+                   p.level = 1.0)
+#(
+a006.DICA.withHull <-  Imap$zeMap_background + 
+                       Imap$zeMap_dots       + 
+                       MapGroup$zeMap_dots   + 
+                       MapGroup$zeMap_text   +
+                       GraphHull + label4Map +
+ ggtitle('DICA: Group Centers with Hulls and Observations')
+#)
+# To print the Hulls
+#dev.new()
+print(a006.DICA.withHull )
+
+```
+
+
+If you drink a lot you tend to like Metal and Swing more than others. If you are
+a social drinker you tend to like Latino and Pop whereas if you have never consumed 
+alcohol, you prefer Country and Swing. 
+
+
+```{r,  warning = FALSE, echo=FALSE, message=FALSE}
+#_________________________________________________
+## Variables ----
+### colors 4 J-set ----
+# get colors
+nominalcolnames <- gsub("\\.[0-9]", "", 
+     drop(colnames(resDiCA$TExPosition.Data$X)))
+col4Var <- prettyGraphsColorSelection(
+                        n.colors = ncol(XYmat),
+                        starting.color = 42)
+col4VarNom <- rep(col4Var,foo(nominalcolnames))
+#_________________________________________________
+### base map J ----
+Fj <- resDiCA$TExPosition.Data$fj
+baseMap.j <- PTCA4CATA::createFactorMap(Fj,
+                 col.points   = col4VarNom,
+                 alpha.points =  .3,
+                 col.labels   = col4VarNom)
+#_________________________________________________
+b001.BaseMap.Fj <- baseMap.j$zeMap + label4Map 
+b002.BaseMapNoDot.Fj  <-
+  baseMap.j$zeMap_background +
+  baseMap.j$zeMap_text + label4Map 
+###  add Lines ----
+lines4J <- addLines4MCA(Fj, col4Var = col4Var)
+b003.MapJ <-  b001.BaseMap.Fj + lines4J
+#dev.new()
+print(b003.MapJ)
+
+```
+
+
+As referenced in the above analysis, high ratings of Metal, Swing, and Pop are
+important contributors to first dimension. Country is a important contributor to the 
+second dimension. Latino and Pop are both significant bootstrap ratios. 
+
+```{r,  warning = FALSE, echo=FALSE, message=FALSE}
+
+#_________________________________________________
+##  Contributions ----
+#_________________________________________________
+#_________________________________________________
+### Ctr J-set ----
+# 
+ctrj <- resDiCA$TExPosition.Data$cj
+signed.ctrj <- ctrj * sign(Fj)
+####  CtrJ 1 ====
+c001.plotCtrj.1 <- PrettyBarPlot2(
+  bootratio = round(100*signed.ctrj[,1]), 
+  threshold = 100 / nrow(signed.ctrj), 
+  ylim = NULL, 
+    signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4VarNom),
+  color4ns = "gray75", 
+  plotnames = TRUE, 
+  main = 'Important Contributions Variables. Dim 1.', 
+  ylab = "Signed Contributions")
+#dev.new()
+print(c001.plotCtrj.1)
+#_________________________________________________
+#### CtrJ 2 ====
+c002.plotCtrj.2 <- PrettyBarPlot2(
+  bootratio = round(100*signed.ctrj[,2]), 
+  threshold = 100 / nrow(signed.ctrj), 
+  ylim = NULL,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4VarNom),
+  color4ns = "gray75", 
+  plotnames = TRUE, 
+  main = 'Important Contributions Variables. Dim 2.', 
+  ylab = "Signed Contributions")
+#dev.new()
+print(c002.plotCtrj.2)
+#_________________________________________________
+### Contribution Maps ----
+CtrJ12 <- data4PCCAR::ctr4Variables(
+                     resDiCA$TExPosition.Data$cj)
+baseMap.ctrj <- PTCA4CATA::createFactorMap(CtrJ12,
+                     col.points   = col4Var,
+                     alpha.points =  .3,
+                     col.labels   = col4Var)
+#_________________________________________________
+b001a.BaseMap.Ctrj <- baseMap.ctrj$zeMap + 
+                       label4Map +
+  ggtitle('Variables Contributions Map')
+b001aa.BaseMapNoDot.Ctrj  <- 
+  baseMap.ctrj$zeMap_background +
+  baseMap.ctrj$zeMap_text + label4Map 
+#dev.new()
+print(b001a.BaseMap.Ctrj)
+#_________________________________________________
+#_________________________________________________
+##  Bootstrap ratios ----
+#_________________________________________________
+### BR4Variables ----
+# Note that we do not have the BR for the levels, 
+# only of the variables
+#_________________________________________________
+### BR. 1 ====
+# 
+BRj <- resDiCA.inf$Inference.Data$boot.data$fj.boot.data$tests$boot.ratios
+# BR1
+d001.plotBRj.1 <- PrettyBarPlot2(
+  bootratio = BRj[,1], 
+  threshold = 2, 
+  ylim = NULL, 
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Var),
+  color4ns = "gray75", 
+  plotnames = TRUE, 
+  main = 'Bootstrap Ratios Variable Levels. Dim 1.', 
+  ylab = "Bootstrap Ratios")
+#dev.new()
+print(d001.plotBRj.1)
+#_________________________________________________
+### BR. 2 ====
+# 
+d003.plotBRj.2 <- PrettyBarPlot2(
+  bootratio = BRj[,2], 
+  threshold = 2, 
+  ylim = c(-1,3), 
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Var),
+  color4ns = "gray75", 
+  plotnames = TRUE, 
+  main = 'Bootstrap Ratios Variable Levels. Dim 2.', 
+  ylab = "Bootstrap Ratios")
+#dev.new()
+print(d003.plotBRj.2)
+```
+
+## Fixed Confusion Matrix
+
+
+The Fixed Confusion matrix performs slightly better than change (0.39 vs. 0.33).
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+fixed_cm <-resDiCA.inf$Inference.Data$loo.data$fixed.confuse
+  
+head(fixed_cm) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+
+resDiCA.inf$Inference.Data$loo.data$fixed.acc
+```
+
+## Random Confusion Matrix
+
+
+The random confusion matrix also performs slightly better than chance (0.37 vs.
+0.33).
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+random_cm <- resDiCA.inf$Inference.Data$loo.data$loo.confuse
+
+head(random_cm) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+
+resDiCA.inf$Inference.Data$loo.data$loo.acc
+```
+
+
+
+## Summary
+
+Discriminant Correspondence Analysis have feature of BADA and MCA with a emphasis
+on predicting the closest distance to a group mean binned data. The analysis revealed
+that heavy drinkers prefer Metal and Swing while social drinkers  tend to like 
+Latino and Pop. Those that have never consumed alcohol prefer Country and Swing.
+The fixed and random matrices preformed slightly better than chance. 

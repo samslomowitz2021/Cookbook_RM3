@@ -1,0 +1,629 @@
+
+# Correspondence Analysis {#ca}
+
+
+Correspondence Analysis is similar to PCA, but is meant for qualitative data.
+Factor scores are generated for rows and columns, and both sets of factor 
+scores have the same variance. Thus, they can be plotted on the same map for the 
+analysis. CA also has distributional equivalence. Thus, merging two rows with the 
+same profile does not affect the output and the output would be identical. A profile
+is a relative proportion versus an absolute number as in PCA. While PCA minimizes the 
+sum of square of distance, CA minimized the sum of squares of mass times distance squared
+or Inertia. 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, fig.width = 10)
+
+graphics.off()
+rm(list = ls())
+gc()
+#devtools::install_github("herveabdi/PTCA4CATA") # you only need this line of code if you haven't downloaded the package
+# install.packages("gridExtra")
+# install.packages("ggplotify")
+# install.packages("grid")
+library(devtools)
+library(InPosition)
+library(ggplot2)
+library(corrplot)
+library(PTCA4CATA)
+library(data4PCCAR)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+# The following three functions allow you to arrange your plots in Rmarkdown
+library(gridExtra)
+library(ggplotify)
+library(grid)
+```
+
+The data set contains 120 consumers who evaluated their emotions upon tasting
+5 types of low income sausages. The objective was to then related these
+reported emotions to their sensory profiles. The participants were all
+female from either Mexico City or Monterrey. 
+
+The data table is a contingency table. Thus, variables are on the rows and 
+columns while observations are the items of the table. Further, in a contingency
+table, the observations are independence from one other. 
+
+The research question of this section is: Do types of low-income sausages differ
+in the emotional responses people attribute to them?
+
+
+```{r data_set, echo=FALSE}
+# Get the data ----
+
+music_5 <- read.csv("data/Sausages.csv")
+
+
+music_6 = data.frame(music_5)
+# The active data set
+X <- as.matrix(music_6)
+
+df10 = X[,-1]
+
+df11 = music_6[,-1]
+
+rownames(df11) = music_6[,1]
+
+
+num <- as.numeric(unlist(df11))
+mt1 <- matrix(unlist(num), nrow = 5, byrow = FALSE)
+
+rownames(mt1) = music_6[,1]
+colnames(mt1) <- c("Happy", "Pleasant", "Unpleasant", "Salivating", "Famished", "Refreshed", "Desired", "Soothed", "Comforted", "Disgusted", "Energetic", "Joy", "Impressed","Interested","Irritated","Melancholic", "Nostalgic", "Relaxed", "Revital", "Romantic","Sad","Sensual",
+"Espiritual","Thirsty","Well-being","Guilty")
+
+mt2 = mt1[-5,1:26]
+```
+
+The observations for Happy emotions for the Alpino sausages is 27. Each observation 
+has one sausage type and one emotion survey response. 
+
+```{r}
+head(mt1) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
+
+```{r, echo=FALSE}
+mt2a=mt2[-4,]
+
+mt3a = mt1[-1,1:20]
+
+mt3b = mt3a[-1,1:20]
+mt3c = mt3b[-1,1:20]
+mt3d = mt3c[-1,1:20]
+
+data.frame.3d = data.frame(mt3d)
+
+df3e = t(data.frame.3d)
+
+rownames(df3e) = c("Duby")
+
+mt4=mt1[,21:26]
+
+mt5=mt4[-5,]
+
+df5b = data.frame(mt5)
+
+# A supplementary points: Duby
+HApunct <-df3e
+# The supplementary variables
+otherPunct <- df5b
+
+
+```
+
+## The data pattern
+The data pattern using the chi-square is in contrast to a correlation matrix seen in PCA.
+The chi-square test for independence is conducted to test for the independence of the
+rows (sausage type) and columns (emotional response). It is the sum of squares for the 
+observed value minus the expected value, all squared, divided by the expected value. 
+
+The degrees of freedom are calculated by the number of rows minus one times the 
+number of columns minus one of the contingency table. The number of observations 
+dictates the effect of the chi-square distribution. Thus, a small number of observations
+on the order of a few hundred would lead to a smaller effect than a million obsrvations. 
+
+```{r GetChi2-1, include= FALSE, warning=FALSE}
+# get Chi2 -- we can use the available package to get the Chi2
+chi2    <-  chisq.test(mt1)
+```
+
+The p-value for the chi-square is non-significant. Thus, the Null hypothesis is true
+that the rows are independent of the columns. In other words, there is no deviation 
+from independence, partly due to the small number of observations. 
+```{r}
+chi2 
+```
+
+Here we are using frequencies of qualitative data while in PCA we used quantitative data. 
+The chi-square statistic is divided by the total sum of the data while maintaining
+the data structure of the table versus summing all the chi-square statistics to one number.
+Chi-square becomes a variance between what is expected and what is observed. Just like PCA
+decomposes a variance, CA decomposed chi-square. 
+
+
+```{r GetChi2-2, echo = FALSE}
+# Components of chi2: the chi-squares for each cell before we add them up to compute the chi2
+Inertia.cells <- chi2$residuals / sqrt(sum(mt1))
+# To be Plotted
+
+# You can always compute it directly from the data
+Z <-  mt1 / sum(mt1) # observed 
+r <- as.matrix(rowSums(Z)) # expected for each row
+c <- as.matrix(colSums(Z)) # expected for each column
+# Inertia.cells 
+test.Inertia.cells <- diag( as.vector(r^(-1/2)) ) %*% 
+                     (Z - r%*%t(c) ) %*% diag(as.vector(c^(-1/2)))
+```
+
+Here is the heatmap for the chi-square distribution on this data set. It is a data
+visualization of the chi-square values for each set of observations. It is not a correlation 
+matrix but rather explains variance. The equivalent of the correlation coefficient in CA
+is the Phi prime, squared value, which is a eigenvalue in the same dimension by chance. 
+
+Bafar is capturing a positive probability frequency with being Famished while
+Capistrano is capturing a positive probability frequency with Desired. Duby can 
+be described closer to Joy and Impressed and away from Melancholic. Chimex is closer
+in Eucledian distance to Revital while Alpino is far from Revital and Bafar from 
+Romantic. 
+
+```{r corplot, echo= FALSE}
+## You can also do it without transposing it (the commented code). The plot will be the same but just in portreit.
+corrplot(Inertia.cells, is.cor = FALSE)
+
+```
+
+## Analysis
+
+
+```{r analyze, cache=TRUE, results='hide', echo=FALSE}
+# run CA
+resCA.sym  <- epCA(mt1, symmetric = TRUE, graphs = FALSE)
+resCAinf.sym4bootJ  <- epCA.inference.battery(mt1, symmetric = TRUE, graphs = FALSE, test.iters = 25)
+resCAinf.sym4bootI  <- epCA.inference.battery(t(mt1), symmetric = TRUE, graphs = FALSE, test.iters = 25)
+
+# to run a plain CA but asymmetric
+# this is using the columns as the simplex (you can also use rows by running epCA with t(X))
+resCA.asym <- epCA(mt1, symmetric = FALSE, graphs = FALSE)
+
+```
+
+Below is the fastPerm4CA, which computes a permutation test for CA when one has 
+a real contingency table. Multinomial distribution is used for the resampling. 
+fastPerm4CA can be used for large tables to test for inertia and for the test 
+on the eigenvalues.
+
+```{r fastCA}
+res_fast_perm <- data4PCCAR::fastPerm4CA(mt1, nIter = 100, compact = FALSE)
+res_fast_boot <- data4PCCAR::fastBoot4CA(mt1)
+
+```
+
+
+### Scree Plot
+
+Here are the results from permutation with Scree plot, with violet color 
+indicating significant components.The estimated p-values were added to 
+the `PlotScree` function.
+
+As seen here, permutation testing did not capture significant values for 
+dimension capturing inertia. There are 4 dimension shown as there are 5 sausage types. 
+Thus, the number of dimensions is equal to the number of row or columns minus 1. 
+
+```{r scree plot, echo=FALSE}
+my.scree <- PlotScree(ev = resCA.sym$ExPosition.Data$eigs,
+                      p.ev = resCAinf.sym4bootJ$Inference.Data$components$p.vals)
+```
+
+
+
+```{r toplot, echo=FALSE}
+# Here are the factor scores you need
+Fj.a <- resCA.asym$ExPosition.Data$fj
+Fi   <- resCA.sym$ExPosition.Data$fi
+Fj   <- resCA.sym$ExPosition.Data$fj
+
+# constraints -----
+# first get the constraints correct
+constraints.sym  <- minmaxHelper(mat1 = Fi, mat2  = Fj)
+constraints.asym <- minmaxHelper(mat1 = Fi, mat2  = Fj.a)
+
+# Get some colors ----
+color4Authors <- prettyGraphsColorSelection(n.colors = nrow(Fi))
+
+new_color = color4Authors
+new_color = recode(new_color, "mediumorchid4" = "blue", "olivedrab3" = "brown", "palegreen1" ="red", "plum" = "black", "royalblue" = "khaki3" )
+
+
+
+
+#new_color2 = resCA.sym$Plotting.Data$fi.col
+
+
+new_color10 = matrix(new_color)
+rownames(new_color10) <- c("Alpino","Bafar","Capistrano", "Chimex", "Duby")
+
+new_color2 =  c("blue", 
+                  "brown", 
+                  "red", 
+                  "black",
+                  "khaki3")
+
+
+new_color3 = resCA.sym$Plotting.Data$fj.col
+
+new_color3 =  c( "white", 
+                  "white", 
+                  "white", 
+                  "white",
+                  "saddlebrown",
+                  "white", 
+                  "white",  
+                  "white",  
+                  "white" , 
+                  "white", 
+                  "white",
+                  "white",
+                  "white", 
+                  "white", 
+                  "white",  
+                  "saddlebrown", 
+                  "white", 
+                  "white", 
+                  "white", 
+                  "saddlebrown",
+                  "white",
+                  "saddlebrown",
+                  "saddlebrown",
+                  "white",
+                  "white",
+                 "saddlebrown"
+                 )
+new_color11 = matrix(new_color3)
+
+new_color4 =  c( "palegreen3", 
+                  "palegreen3", 
+                  "palegreen3", 
+                  "palegreen3",
+                  "saddlebrown",
+                  "palegreen3", 
+                  "palegreen3",  
+                  "palegreen3",  
+                  "palegreen3" , 
+                  "palegreen3", 
+                  "palegreen3",
+                  "palegreen3",
+                  "palegreen3", 
+                  "palegreen3", 
+                  "palegreen3",  
+                  "saddlebrown", 
+                  "palegreen3", 
+                  "palegreen3", 
+                  "palegreen3", 
+                  "saddlebrown",
+                  "palegreen3",
+                  "saddlebrown",
+                  "saddlebrown",
+                  "palegreen3",
+                  "palegreen3",
+                 "saddlebrown"
+                 )
+new_color12 = matrix(new_color4)
+
+new_color4 = c("orange")
+new_color5 = c("blue","blue" ,"blue" , "blue", "pink" , "pink")
+# baseMaps ----
+colnames(Fi) <- paste("Dimension ", 1:ncol(Fi))
+colnames(Fj) <- paste("Dimension ", 1:ncol(Fj))
+colnames(Fj.a) <- paste("Dimension ", 1:ncol(Fj.a))
+
+```
+
+
+### Plot the asymmetric factor scores
+
+```{r asym_factor_scores, echo=FALSE}
+# Your asymmetric factor scores
+new_color_asym = c("blue", "brown", "red", "black", "khaki3")
+asymMap  <- createFactorMapIJ(Fi,
+                              Fj.a,
+                            col.points.i = new_color_asym,
+                            col.labels.i = new_color_asym,
+                            font.face.i = 'italic',
+                            alpha.labels.i = 1.2,
+                            alpha.points.i = .8,
+                            col.points.j = resCA.sym$Plotting.Data$fj.col,
+                            col.labels.j = resCA.sym$Plotting.Data$fj.col,
+                            alpha.labels.j = .9,
+                            font.face.j = 'italic',
+                            alpha.points.j = .8)
+
+```
+
+A simplex is a subspace of space with constraints. The variables are in the same
+space as the rows with the barycenter at the origin. A barycenter is the middle or
+center of gravity of the data. Information is inversely proportional to the frequency of 
+information. Thus, the variables farthest away from other row data points explain the 
+biggest variance. Romantic, Melancholic, Sensual, Famished, Guilty, and Espiritual 
+capture the most variance in the data, based the simplex. The eigenvalue of .01 
+for the first dimension correspond to a correlation coefficient. Thus, there is 
+very low correlation value along the first dimension as well as for the next three 
+dimensions. 
+
+```{r}
+# Make the simplex visible
+zePoly.J <-  ggConvexHull(Fj.a, 
+              percentage = 1,
+              col.hull = ggplot2::alpha('darkorchid',.2),
+              col.line = ggplot2::alpha('darkorchid',.7),
+              line.size = .4,
+              alpha.hull = .2,
+              names.of.factors = "Dimension ")
+
+# Labels
+labels4CA <- createxyLabels(resCA = resCA.asym)
+
+# Combine all elements you want to include in this plot
+map.I.sup.asym <- asymMap$baseMap + zePoly.J + 
+                          asymMap$I_points +
+                          asymMap$J_labels + asymMap$J_points + 
+                         
+                          labels4CA + 
+ggtitle('Asymmetric Map and Simplex') 
+map.I.sup.asym
+```
+
+The first dimension separates survival emotions from higher ordered emotions. 
+For example, Energetic, Famished, and Salivating are on the right (survival
+emotions) while Revital, Romantic, and Desired are on the left (higher ordered
+emotions). The second dimension separates positive/negative responses from 
+more neutral responses. For example, Disgusted, Romantic, and Nostalgic are 
+separate from Desired, Salivating, and Famished. 
+
+### Plot the symmetric plot
+
+```{r sym_factor_scores, echo=FALSE}
+# factor scores
+symMap  <- createFactorMapIJ(Fi,
+                             Fj,
+                            col.points.i = new_color_asym,
+                            col.labels.i = new_color_asym ,
+                            font.face.i = 'italic',
+                            alpha.labels.i = .8,
+                            alpha.points.i = .8,
+                            col.points.j = new_color3,
+                            col.labels.j = new_color3,
+                            alpha.labels.j = .9,
+                            font.face.j = 'italic',
+                            alpha.points.j = .8)
+
+```
+
+Below is a symmetric biplot of the data. Chimex has the highest frequency probability 
+for Romantic compared to the other sausage types while Duby is closest for the Guilty 
+emotional response. 
+
+#### This is a biplot:
+```{r biplot_f}
+# Create a symmetric map with sup and correct constraints
+map.IJ.sup.sym <- symMap$baseMap + # the baseMap needs to come from your mapSup to be correct (at least for this example)
+  symMap$I_labels + symMap$I_points +
+  symMap$J_labels + symMap$J_points + 
+  ggtitle('Symmetric Map') + 
+  labels4CA
+
+map.IJ.sup.sym
+```
+
+Below is the plots separated into two. 
+
+```{r twoplots_f, echo=FALSE}
+# plot the row factor scores with confidence intervals
+map.sepI.sup.sym <- symMap$baseMap  + 
+  symMap$I_labels + symMap$I_points +
+ 
+  ggtitle('Symmetric: Row') + 
+  labels4CA
+
+# plot the columns factor scores with confidence intervals
+map.sepJ.sup.sym <- symMap$baseMap +
+  symMap$J_labels + symMap$J_points +
+
+  ggtitle('Symmetric: Column') + 
+  labels4CA
+
+
+```
+
+
+If I were a grocery clerk, I would put Capistrano and Chimez together and Bafar 
+and Alpino together as the Symmetric Row plot makes this split along the first dimension. 
+The Symmetric Column plot splits the Survival Emotions (Guilty and Famished) from 
+the  Higher Ordered Emotions (Espiritual, Romantic, Melancholic, and Sensual) along the second
+dimension. 
+
+
+```{r, echo=FALSE}
+grid.arrange(
+    map.sepI.sup.sym, map.sepJ.sup.sym,
+    ncol = 2,nrow = 1,
+    top = textGrob("Factor scores", gp = gpar(fontsize = 18, font = 3))
+  )
+
+```
+
+
+#### Contributions and bootstrap ratios barplots
+
+##### Contribution barplots
+
+For CA, we plot the contributions for both rows and columns.
+
+```{r ctr_bars, echo=FALSE}
+signed.ctrI <- resCA.sym$ExPosition.Data$ci * sign(resCA.sym$ExPosition.Data$fi)
+signed.ctrJ <- resCA.sym$ExPosition.Data$cj * sign(resCA.sym$ExPosition.Data$fj)
+
+
+# plot contributions of rows for component 1
+ctrI.1 <- PrettyBarPlot2(signed.ctrI[,1],
+                         threshold = 1 / NROW(signed.ctrI),
+                         font.size = 3,
+                         signifOnly = TRUE,
+                         color4bar = gplots::col2hex(new_color10), # we need hex code
+                         
+                         ylab = 'Contributions',
+                         ylim = c(1.2*min(signed.ctrI), 1.2*max(signed.ctrI))
+) + ggtitle("Component 1", subtitle = 'rows')
+
+# plot contributions of columns for component 1
+ctrJ.1 <- PrettyBarPlot2(signed.ctrJ[,1],
+                         threshold = 1 / NROW(signed.ctrJ),
+                         font.size = 3,
+                          signifOnly = TRUE,
+                         color4bar = gplots::col2hex(new_color12), # we need hex code
+                         ylab = 'Contributions',
+                         ylim = c(1.2*min(signed.ctrJ), 1.2*max(signed.ctrJ))
+) + ggtitle("", subtitle = 'columns')
+
+# plot contributions of rows for component 2
+ctrI.2 <- PrettyBarPlot2(signed.ctrI[,2],
+                         threshold = 1 / NROW(signed.ctrI),
+                         font.size = 3,
+                          signifOnly = TRUE,
+                         color4bar = gplots::col2hex(new_color10), # we need hex code
+                         ylab = 'Contributions',
+                         ylim = c(1.2*min(signed.ctrI), 1.2*max(signed.ctrI))
+) + ggtitle("Component 2", subtitle = 'rows')
+
+# plot contributions of columns for component 2
+ctrJ.2 <- PrettyBarPlot2(signed.ctrJ[,2],
+                         threshold = 1 / NROW(signed.ctrJ),
+                         font.size = 3,
+                          signifOnly = TRUE,
+                         color4bar = gplots::col2hex(new_color12), # we need hex code
+                         ylab = 'Contributions',
+                         ylim = c(1.2*min(signed.ctrJ), 1.2*max(signed.ctrJ))
+) + ggtitle("", subtitle = 'columns')
+
+```
+
+As referenced in the analysis above, Bafar and Chimex makes a important contribution 
+to the inertia of the chi-square distribution. Famished, Melancholic, and Sensual
+make an important contribution for the first dimension while. Famished, Melancholic,
+Romantic, and Guilty make up an important contribution for the second dimension. 
+
+```{r, echo=FALSE}
+grid.arrange(
+    as.grob(ctrI.1),as.grob(ctrJ.1),as.grob(ctrI.2),as.grob(ctrJ.2),
+    ncol = 2,nrow = 2,
+    top = textGrob("Contributions", gp = gpar(fontsize = 18, font = 3))
+  )
+Ctr.IJ <- recordPlot() # you need this line to be able to save them in the end
+```
+
+Energetic, Famished, and Salivating as well as Romantic and Desired are among 
+the variable the contribution importantly to the first dimension. Disgusted and 
+salivating are variable discussed above that also contributed importantly to the
+second dimension. 
+
+##### Bootstrap ratios
+
+
+``` {r BR, echo=FALSE}
+BR.I <- resCAinf.sym4bootI$Inference.Data$fj.boots$tests$boot.ratios
+BR.J <- resCAinf.sym4bootJ$Inference.Data$fj.boots$tests$boot.ratios
+
+laDim = 1
+
+# Plot the bootstrap ratios for Dimension 1
+ba001.BR1.I <- PrettyBarPlot2(BR.I[,laDim],
+                  threshold = 2,
+                  font.size = 3,
+                  signifOnly = TRUE,
+                  color4bar = gplots::col2hex(new_color10), # we need hex code
+                  ylab = 'Bootstrap ratios'
+
+) + ggtitle(paste0('Component ', laDim), subtitle = 'rows')
+
+ba002.BR1.J <- PrettyBarPlot2(BR.J[,laDim],
+                  threshold = 2,
+                  font.size = 3,
+                  signifOnly = TRUE,
+                  color4bar = gplots::col2hex(new_color12), # we need hex code
+                  ylab = 'Bootstrap ratios'
+            
+              
+) + ggtitle("", subtitle = 'columns')
+
+# Plot the bootstrap ratios for Dimension 2
+laDim = 2
+ba003.BR2.I <- PrettyBarPlot2(BR.I[,laDim],
+                  threshold = 2,
+                  font.size = 3,
+                  signifOnly = TRUE,
+                  color4bar = gplots::col2hex(new_color10), # we need hex code
+                  ylab = 'Bootstrap ratios',
+                  ylim = c(-1,3)
+             
+              
+) + ggtitle(paste0('Component ', laDim), subtitle = 'rows')
+
+ba004.BR2.J <- PrettyBarPlot2(BR.J[,laDim],
+                  threshold = 2,
+                  font.size = 3,
+                  signifOnly = TRUE,
+                  color4bar = gplots::col2hex(new_color12), # we need hex code
+                  ylab = 'Bootstrap ratios',
+                  ylim = c(-5,5)
+
+) + ggtitle("", subtitle = 'columns')
+```
+
+(The next set of code is used to put two figures side to side).
+
+Bafar and Chimex as stable row variables in the analysis while 
+Sensual and Famished are stables column variables. 
+
+```{r grid_BR, echo = T}
+grid.arrange(
+    as.grob(ba001.BR1.I),as.grob(ba002.BR1.J),as.grob(ba003.BR2.I),as.grob(ba004.BR2.J),
+    ncol = 2,nrow = 2,
+    top = textGrob("Bootstrap ratios", gp = gpar(fontsize = 18, font = 3))
+  )
+
+```
+
+Here are the contribution and bootstrap ratio plots side by side.
+
+```{r}
+grid.arrange(
+     as.grob(ctrI.1),as.grob(ctrJ.1),as.grob(ctrI.2),as.grob(ctrJ.2),as.grob(ba001.BR1.I),as.grob(ba002.BR1.J),as.grob(ba003.BR2.I),as.grob(ba004.BR2.J),
+    ncol = 4,nrow = 2,
+    top = textGrob("Contribution   &   Bootstrap ratios", gp = gpar(fontsize = 18, font = 3))
+  )
+
+```
+
+
+
+## Summary
+
+First and foremost, I prefer the symmetric plot do to better visualization. 
+
+When we interpret the factor scores and loadings together, the CA revealed:
+
+*Chimex has the highest frequency probability for Romantic compared to the 
+other sausage types 
+
+*Duby is closest for the Guilty emotional response. 
+
+When we interpret the factor scores and loadings separately, the CA revealed:
+
+* Component 1: Capistrano and Chimez  vs. Bafar and Alpino
+
+* Component 2: Survival Emotions (Guilty and Famished) vs. 
+  Higher Ordered Emotions (Espiritual, Romantic, Melancholic, and Sensual)

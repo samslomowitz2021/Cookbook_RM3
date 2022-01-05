@@ -1,0 +1,461 @@
+
+# MFA {#mfa}
+
+This method is an extension of PCA with a multi-data table scenario. First, MFA
+does a PCA on each Table and normalizes each one. Second, the normalize tables
+are aggregated in a multi-dimensional table and another non-normalized PCA is 
+run to generate factor scores and loadings. MFA specifically is a I by J by K matrix
+where I and J are objects and K are people. 
+
+```{r start, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+
+
+# Clean Start ---- 
+rm(list = ls())
+graphics.off()
+gc()
+```
+
+```{r libraries, echo=FALSE, warning=FALSE,message=FALSE}
+#
+#_________________________________________________
+#  *** Prelude ----
+# Libraries ----
+#install.packages("prettyGraphs")
+#install.packages("survival")
+library(survival)
+library(usethis)
+library(devtools)
+library(prettyGraphs)
+library(ExPosition)
+library(InPosition)
+library(TExPosition)
+library(TInPosition)
+library(colortools)
+library(coin)
+library(abind)
+library(carData)
+library(car)
+library(stats)
+library(gplots)
+library(DistatisR)
+library(FactoMineR)
+library(PTCA4CATA)
+library(data4PCCAR)
+library(knitr)
+library(kableExtra)
+
+```
+
+
+```{r data, echo=FALSE, warning=FALSE,message=FALSE}
+#Loading the data
+wine = read.csv("Data/wine2.csv")
+
+data_2=wine[,-1]
+rownames(data_2)=wine[,1]
+
+data_3 = data.frame(data_2)
+
+ratings = data_3
+
+nationVector = c("Fr.Info", "Fr.Info", "Fr.Info", "Fr.Info", "Fr.Info", "Fr.Info", 
+"Fr.Info", "Fr.Info", "Fr.Info", "Fr.Info", "Fr.Info", "Fr.Info", "Fr.No.Info",
+"Fr.No.Info","Fr.No.Info","Fr.No.Info","Fr.No.Info","Fr.No.Info","Fr.No.Info",
+"Fr.No.Info","Fr.No.Info","Fr.No.Info","Fr.No.Info","Fr.No.Info","Fr.No.Info",
+"SA.Info","SA.Info","SA.Info","SA.Info","SA.Info","SA.Info","SA.Info","SA.Info",
+"SA.Info","SA.Info","SA.Info","SA.Info","SA.Info","SA.No.Info","SA.No.Info",
+"SA.No.Info","SA.No.Info","SA.No.Info","SA.No.Info","SA.No.Info","SA.No.Info")
+nVar4Nation = c("Fr.Info" = 12, "Fr.No.Info"  = 13, "SA.Info"=13, 
+                "SA.No.Info" = 8)
+namesOfNations = c("Fr.Info", "Fr.No.Info" , "SA.Info", 
+                "SA.No.Info")
+color4Wines = c("mediumorchid4", "olivedrab3", "palegreen1", "plum", 
+                "royalblue", "mediumorchid4", "olivedrab3", "palegreen1", 
+                "plum", "royalblue", "mediumorchid4", "olivedrab3", 
+                "palegreen1", "plum")
+color4Nations = c("deeppink","firebrick4", "honeydew4", "lemonchiffon3")
+
+color4WinesB = as.matrix(color4Wines)
+color4NationsB = as.matrix(color4Nations)
+my_list = list(Ratings = ratings, NationVector = nationVector, 
+               nVar4Nation2 = nVar4Nation, NamesOfNations = namesOfNations,
+               Color4WinesB = color4WinesB, Color4NationsB = color4NationsB)
+
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+# Run MFA ----
+# get the parameters
+nNations5     <- length(my_list$NamesOfNations)
+nProducts5   <- nrow(my_list$Ratings)
+nVar4Nations5 <- my_list$nVar4Nation2
+ratings5     <- my_list$Ratings
+namesOfNations5 <- my_list$NamesOfNations
+```
+
+```{r}
+head(ratings5) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+
+```
+
+
+## Analysis 
+
+
+```{r, warning=FALSE, message=FALSE}
+## call  MFA ----
+resMFA <- FactoMineR::MFA(ratings5,
+     group = nVar4Nations5,
+     type = rep("s", nNations5),
+     name.group = my_list$NamesOfNations,
+     graph = FALSE  # TRUE first pass only
+)
+
+
+```
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+
+# Run Distatis ----
+## Distances
+# Get the cube of distances for distatis
+cubeOfDistances <- array(data = NA,
+      dim = c(nProducts5, nProducts5, nNations5),
+      dimnames = list(rownames(ratings5), 
+      rownames(ratings5), namesOfNations5)
+)
+
+lindex <- cumsum(c(0,nVar4Nations5))
+
+for (k in 1: nNations5){
+  mat_k <- as.matrix(ratings5[,(lindex[k] + 1) : lindex[k + 1]])
+  print(k)
+  print(mat_k)
+  norm_mat_k <- scale0(mat_k) 
+  # NB Squared Euclidean
+  cubeOfDistances[,,k] <- as.matrix(dist(norm_mat_k)^2)
+}
+```
+
+```{r}
+
+# distatis ----
+resDistatis <- distatis(cubeOfDistances)
+# **** Graphs ----
+color4NationsB   <- my_list$Color4NationsB
+color4WinesB<- my_list$Color4WinesB
+# ... MFA ----
+val.p   <- resMFA$eig[,1]
+val.tau <- resMFA$eig[,2] 
+ctr.Judges.mfa <- resMFA$group$coord
+
+```
+
+### Graphs 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# Scree ----
+#_________________________________________________
+scree.mfa <- PlotScree(
+  ev = val.p, 
+  title = "MFA: Explained Variance per Dimension")
+
+#_________________________________________________
+## ----RVGplot------------------------------------
+# get the eigenvalues for RV
+RV.eig <- eigen(resMFA$group$RV[1:nNations5, 1:nNations5], 
+                symmetric = TRUE)
+G.mfa  <- firstpos(RV.eig$vectors) %*% 
+                        diag(RV.eig$values^(1/2))
+rownames(G.mfa) <- namesOfNations5
+colnames(G.mfa) <- paste0('Dimension ', 1:ncol(G.mfa))
+mfa.rv.eig <- RV.eig$values
+mfa.rv.tau <-  round(100 * mfa.rv.eig / sum(mfa.rv.eig))
+# Create the layers of the map
+gg.rv.graph.out.mfa <- createFactorMap(
+  X = as.data.frame(G.mfa), 
+  axis1 = 1, axis2 = 2, 
+  title = "MFA. Judges: RVMap", 
+  col.points = color4NationsB, 
+  col.labels = color4NationsB)
+# create the labels for the dimensions of the RV map
+labels4RV.mfa <- createxyLabels.gen(
+  lambda =  mfa.rv.eig, 
+  tau    =  mfa.rv.tau,
+  axisName = "Dimension ")
+# # Create the map from the layers
+# Here with labels and dots
+a.a2a.gg.RVmap.mfa <- gg.rv.graph.out.mfa$zeMap + 
+                        labels4RV.mfa
+print(a.a2a.gg.RVmap.mfa)
+
+```
+
+Interestingly, Nationality and Amount of Information are not grouped together. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+# Global Factor Scores ----
+constraints.mfa <- minmaxHelper(resMFA$ind$coord.partiel)
+F.mfa <- resMFA$ind$coord
+# To get graphs with axes 1 and 2:
+h_axis = 1
+v_axis = 2
+genTitle4Compromise = 'Compromise / Global Map. mfa'
+gg.compromise.graph.out.mfa <- createFactorMap(
+  F.mfa,
+  axis1 = h_axis, 
+  axis2 = v_axis,
+  title = genTitle4Compromise,
+  col.points = color4WinesB ,
+  col.labels = color4WinesB,
+  constraints = constraints.mfa)
+label4S.mfa <- createxyLabels.gen(
+  x_axis   = h_axis, y_axis = v_axis,
+  lambda   = resMFA$eig[,1] , 
+  tau      = round(resMFA$eig[,2]),
+  axisName = "Dimension ")
+b2.gg.Smap.mfa <-  
+  gg.compromise.graph.out.mfa$zeMap + label4S.mfa 
+print(b2.gg.Smap.mfa)
+
+```
+
+SKLE, FCLL, FCLP, and FROU are separated from SRAD, and SREY along the first dimension. 
+
+SRAA, SFED, and FBAU are separated from FCAR, and FHUE along the second dimension. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#________________________________________________
+# Partial FS ----
+# reformat ----
+# Format MFA results to match distatis
+# Partial coordinates in MFA
+F_long <- resMFA$ind$coord.partiel 
+F_k.mfa <-  array(data = NA,
+                  dim = c(nProducts5, ncol(F_long), nNations5),
+                  dimnames = list(rownames(ratings5), 
+                                  colnames(F_long), namesOfNations5)
+)
+for (k in 1 : nNations5){
+  row2keep <- seq(k, nProducts5*nNations5, nNations5)
+  F_k.mfa[,,k] <- F_long[row2keep,]
+}
+map4PFS.mfa <- createPartialFactorScoresMap(
+  factorScores = F.mfa,      
+  partialFactorScores = F_k.mfa,  
+  axis1 = 1, axis2 = 2,
+  colors4Items = as.vector(color4WinesB), 
+  names4Partial = dimnames(F_k.mfa)[[3]], # 
+  font.labels = 'bold'
+)
+d1.partialFS.map.mfa.byProducts <- 
+  gg.compromise.graph.out.mfa$zeMap + 
+  map4PFS.mfa$mapColByItems + label4S.mfa 
+d2.partialFS.map.mfa.byCategories  <- 
+  gg.compromise.graph.out.mfa$zeMap + 
+  map4PFS.mfa$mapColByBlocks + label4S.mfa 
+print(d1.partialFS.map.mfa.byProducts)
+print(d2.partialFS.map.mfa.byCategories)
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+# Here we show the Circle of Correlation
+# All J Circle ----
+#_________________________________________________
+# Compute correlation between variables & factors
+cor.ratings <- cor(ratings5, F.mfa)
+
+col4J  <- rep(color4NationsB, times = nVar4Nations5)
+jolie.ggplot.J <- PTCA4CATA::createFactorMap(
+  cor.ratings,
+  col.points = col4J, col.labels = col4J, 
+  constraints = list(minx = -1, miny = -1,
+                     maxx = 1 , maxy = 1)   )
+# draw the circle
+e1.jolieggMap.J <- jolie.ggplot.J$zeMap + 
+  addCircleOfCor() + label4S.mfa
+print(e1.jolieggMap.J) 
+#  Add some arrows
+arrows <- addArrows(cor.ratings, color = col4J)  
+e2.jolieggMap.J <- e1.jolieggMap.J + 
+  arrows 
+print(e2.jolieggMap.J)
+# no dots
+e3.jolieggMap.J <- jolie.ggplot.J$zeMap_background +
+  jolie.ggplot.J$zeMap_text + arrows +
+  addCircleOfCor() + label4S.mfa 
+# Gray the small values ----
+corLevels <- rowSums(cor.ratings[,1:2]^2) 
+threshold <-  .50
+col4J.gray <- col4J
+col4J.gray[corLevels < threshold] <- 'gray85'
+jolie.ggplot.J.gray <- PTCA4CATA::createFactorMap(
+  cor.ratings,
+  col.points = col4J.gray, col.labels = col4J.gray, 
+  constraints = list(minx = -1, miny = -1,
+                     maxx = 1 , maxy = 1)   )
+arrows.gray <- addArrows(cor.ratings, 
+                         color = col4J.gray)  
+e8.jolieggMap.J.gray <- 
+  jolie.ggplot.J$zeMap_background +
+  jolie.ggplot.J.gray$zeMap_text + 
+  arrows.gray +
+  addCircleOfCor() + label4S.mfa 
+print(e8.jolieggMap.J.gray)
+
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# **** Your Turn: ----
+# Do the graphs for Distatis and compare with MFA
+# **** Graphs Distatis ----
+# Distatis Graphs
+# Scree ----
+#_________________________________________________
+scree.distatis <- PlotScree(
+  ev = resDistatis$res4Cmat$eigValues, 
+  title = "distatis: RV Explained Variance per Dimension")
+
+#_________________________________________________
+#_________________________________________________
+scree.distatis.S <- PlotScree(
+  ev = resDistatis$res4Splus$eigValues, 
+  title = "distatis: Compromise Explained Variance per Dimension")
+
+#_________________________________________________
+## ----RVGplot------------------------------------
+# get the eigenvalues for RV
+G.distatis  <- firstpos(resDistatis$res4Cmat$G)
+colnames(G.distatis) <- paste0('Dimension ',
+                          1:ncol(G.distatis))
+distatis.rv.eig <- resDistatis$res4Cmat$eigValues
+distatis.rv.tau <-  round(100 *distatis.rv.eig / 
+                          sum(distatis.rv.eig))
+# Create the layers of the map
+gg.rv.graph.out.distatis <- createFactorMap(
+  X = as.data.frame(G.distatis), 
+  axis1 = 1, axis2 = 2, 
+  title = "DISTATIS. Judges: RVMap", 
+  col.points = color4NationsB, 
+  col.labels = color4NationsB)
+# create the labels for the dimensions of the RV map
+labels4RV.distatis <- createxyLabels.gen(
+  lambda =  distatis.rv.eig, 
+  tau    =  distatis.rv.tau,
+  axisName = "Dimension ")
+# # Create the map from the layers
+# Here with labels and dots
+f.a0002.a2a.gg.RVmap.distatis <- 
+      gg.rv.graph.out.distatis$zeMap + 
+      labels4RV.distatis
+#_________________________________________________
+# Global Factor Scores ----
+constraints.distatis <- minmaxHelper(
+  matrix(resDistatis$res4Splus$PartialF[,1:2,], 
+         nrow = nProducts5 * nNations5, ncol = 2) )
+F.distatis <- resDistatis$res4Splus$F
+# To get graphs with axes 1 and 2:
+h_axis = 1
+v_axis = 2
+genTitle4Compromise.distatis = 'Compromise / Global Map. DISTATIS'
+gg.compromise.graph.out.distatis <- createFactorMap(
+  F.distatis,
+  axis1 = h_axis, 
+  axis2 = v_axis,
+  title = genTitle4Compromise.distatis,
+  col.points = color4WinesB ,
+  col.labels = color4WinesB,
+  constraints = constraints.distatis)
+label4S.distatis <- createxyLabels.gen(
+  x_axis   = h_axis, y_axis = v_axis,
+  lambda   = resMFA$eig[,1] , 
+  tau      = round(resMFA$eig[,2]),
+  axisName = "Dimension ")
+f2.gg.Smap.distatis <-  
+     gg.compromise.graph.out.distatis$zeMap + 
+     label4S.distatis 
+#________________________________________________
+# Partial FS ----
+# reformat ----
+# Format MFA results to match distatis
+# Partial coordinates in MFA
+
+F_k.distatis <- resDistatis$res4Splus$PartialF
+map4PFS.distatis <- createPartialFactorScoresMap(
+  factorScores = F.distatis,      
+  partialFactorScores = F_k.distatis,  
+  axis1 = 1, axis2 = 2,
+  colors4Items = as.vector(color4WinesB), 
+  names4Partial = dimnames(F_k.distatis)[[3]], # 
+  font.labels = 'bold'
+)
+h1.partialFS.map.distatis.byProducts <- 
+  gg.compromise.graph.out.distatis$zeMap + 
+  map4PFS.distatis$mapColByItems + 
+  label4S.distatis 
+h2.partialFS.map.distatis.byCategories  <- 
+  gg.compromise.graph.out.distatis$zeMap + 
+  map4PFS.distatis$mapColByBlocks + 
+  label4S.distatis 
+#_____________________________________________________________________
+# Here we show the Circle of Correlation
+# All J Circle ----
+#_________________________________________________
+# Compute correlation between variables & factors
+cor.ratings.distatis <- cor(ratings, F.distatis)
+
+col4J  <- rep(color4NationsB, times = nVar4Nations5)
+jolie.ggplot.J.distatis <- PTCA4CATA::createFactorMap(
+  cor.ratings.distatis,
+  col.points = col4J, col.labels = col4J, 
+  constraints = list(minx = -1, miny = -1,
+                     maxx = 1 , maxy = 1)   )
+# draw the circle
+i1.jolieggMap.J.distatis <- jolie.ggplot.J.distatis$zeMap + 
+  addCircleOfCor() + label4S.distatis
+print(i1.jolieggMap.J.distatis) 
+#  Add some arrows
+arrows.distatis <- addArrows(cor.ratings.distatis, color = col4J)  
+i2.jolieggMap.J.distatis <- i1.jolieggMap.J.distatis + 
+  arrows.distatis 
+print(i2.jolieggMap.J.distatis)
+# no dots
+i3.jolieggMap.J.distatis <- jolie.ggplot.J.distatis$zeMap_background +
+  jolie.ggplot.J.distatis$zeMap_text + arrows.distatis +
+  addCircleOfCor() + label4S.distatis 
+# Gray the small values ----
+corLevels <- rowSums(cor.ratings.distatis[,1:2]^2) 
+threshold <-  .50
+col4J.gray <- col4J
+col4J.gray[corLevels < threshold] <- 'gray85'
+jolie.ggplot.J.gray.distatis <- PTCA4CATA::createFactorMap(
+  cor.ratings.distatis,
+  col.points = col4J.gray, col.labels = col4J.gray, 
+  constraints = list(minx = -1, miny = -1,
+                     maxx = 1 , maxy = 1)   )
+arrows.gray.distatis <- addArrows(cor.ratings.distatis, 
+                                  color = col4J.gray)  
+i8.jolieggMap.J.gray.distatis <- 
+  jolie.ggplot.J.distatis$zeMap_background +
+  jolie.ggplot.J.gray.distatis$zeMap_text + 
+  arrows.gray.distatis +
+  addCircleOfCor() + label4S.distatis 
+print(i8.jolieggMap.J.gray.distatis)
+```
+
+Here, there is evidence that French and South African Judges that contribute 
+more importantly to the analysis are separated by the first dimension. 
+
+
+## Summary 
+
+SKLE, FCLL, FCLP, and FROU correspond South African Judges and 
+SRAD, and SREY correspond to French Judges. 

@@ -1,0 +1,549 @@
+
+# Partial Least Square Correlation {#plsc}
+
+Using information from the same observations, PLSC finds the correlation of 
+multivariate data in two data tables. The first step is to obtain latent 
+variables from linear combination similar to PCA. Analogously, these latent 
+variables maximize the covariance between the tables. Additionally, factor 
+scores in PCA are akin to latent variables in PLSC while loadings in PCA are 
+akin to saliences in PLSC. Bootstrap and permutation tests are added to the 
+analysis when inferential PSLC is indicated. 
+
+A clean start is achieved by removing data and values from the working 
+environment, closing all open graphic devices, and reporting the memory usage. 
+The latter function, garbage collection, may help R return memory to the 
+operating system after removing a large object. 
+
+```{r clean start 8, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+
+rm(list = ls())
+graphics.off()
+gc()
+```
+
+```{r libraries for PLSC, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+library(ExPosition)
+library(TExPosition)
+#devtools::install_github('HerveAbdi/data4PCCAR') # if needed
+library(data4PCCAR)
+library(PTCA4CATA)
+#install.packages('TInPosition') # if needed
+library(TInPosition)
+library(tidyverse)
+library(corrplot)
+library(prettyGraphs)
+library(knitr)
+library(kableExtra)
+
+```
+
+The following code refines the ggplot2 function by removing error messages
+for multiple overlaps. 
+
+```{r ggrepel, echo=FALSE, warning=FALSE,message=FALSE}
+options(ggrepel.max.overlaps = Inf)
+```
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#Loading the data
+hobbies = read.csv("data/hobbies.csv")
+
+#rearrange row names outside the data matrix
+hobbies_2 = hobbies[,-1]
+rownames(hobbies_2) = hobbies[,1]
+
+#omit observations with missing data
+hobbies_3 = na.omit(hobbies_2)
+
+#shorten variable names to make graphics easier to read
+colnames(hobbies_3)=c("Hist","Psych","Politics","Math","Physics","Internet",  
+                      "PC", "Econ","Bio","Chem","Read","Geo","Lang","Med","Law",
+                      "Cars","Art","Religion", "Outdoor","Dance","Music",
+                      "Writing","Passive Sp","Actice Sp","Garden","Celeb",
+                      "Shop","STEM","Theatre","Friends","Adrenaline Sp", 
+                      "Pets","Gender")
+
+#I have roughly 100 more females than males in my data. I commented out the 
+#code since it play little role in the analysis 
+
+#hobbies_3[,'Gender'] <- plyr::mapvalues(hobbies_3[,'Gender'], 
+                        #from = c("female", "male"), to = c("1","2")) 
+
+#hobbies_3[,1:33] <- lapply(hobbies_3[,1:33], as.numeric)
+
+#hist.gender = hist(hobbies_3[,33],breaks=20)
+dim(hobbies_3)
+```
+
+```{r}
+head(hobbies_3) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
+
+As a background to the data, I have a "hobbies" data set that is organized
+into two natural sub-sets. The first thirteen were college major themes
+(history, psychology, math) and the rest were post-college themes (law, medcine)
+as well as lifelong hobbies (friends, sports, pets). Thus, I based my two 
+matrices along a linear lifespan or life journey. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#splitting the data into two matrices
+
+Xmat = hobbies_3[,1:13]
+
+Ymat = hobbies_3[,14:32]
+
+#grouping variable: gender
+
+gender = hobbies_3[,33]
+```
+
+### Correlation plot
+
+Politics and Law are highly correlated as is Physics and Science and 
+Technology. PC and cars as well as PC and Science and Technology have
+substantial correlations as well. Biology and Chemistry with Medicine have
+very high correlations while Reading and Theater have a fair amount. An interest
+in Reading is negatively correlated with an interest in Cars. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+#correlation matrix
+
+XY.cor = cor(Xmat, Ymat)
+
+corrplot(XY.cor, method = "color", addCoef.col = "black", number.cex = .5)
+
+ 
+```
+
+
+### Analysis
+
+```{r}
+#Next I run the PLSC function
+
+PLSC = tepPLS(Xmat, Ymat, DESIGN = gender, graphs = FALSE)
+
+```
+
+### Inferences
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#Iterations
+
+nIter = 1000
+
+#Permutation test
+# Testing to see is results are non-random
+
+Permutation.4.PLSC = perm4PLSC(
+  Xmat,
+  Ymat,
+  nIter = 1000
+)
+
+#Bootstrap
+#Testing to see is results are stable and would generate similar results
+#in future analyses. 
+
+Bootstrap.4.PLSC = Boot4PLSC(
+  Xmat,
+  Ymat,
+  nIter = 1000,
+  Fi = PLSC$TExPosition.Data$fi,
+  Fj = PLSC$TExPosition.Data$fj,
+  nf2keep = 3, #factors to keep for the analysis
+  critical.value = 2, #cut-off value
+  eig = TRUE, #compute CI for eigenvalues
+  alphaLevel = .05 #alpha level for "eig"
+  
+)
+
+```
+
+### Graphics
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+#scree plot for eigenvalues
+PlotScree(ev = PLSC$TExPosition.Data$eigs,
+          title = "Hobbies and Gender: Inertia Scree Plot",
+          plotKaiser = TRUE,
+          color4Kaiser = ggplot2::alpha("blue",.5),
+          lwd4Kaiser = 2)
+
+#scree plot for singular values
+
+PlotScree(ev = PLSC$TExPosition.Data$eigs^(1/2),
+          title = "Hobbies and Gender: Singular Values Scree Plot",
+          plotKaiser = FALSE)
+
+```
+
+### Color Scheme for Gender
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+Gcolors = gender
+
+Gcolors = recode(Gcolors, "female" = "lightslategrey", 
+                 "male" = "darkorchid1")
+```
+
+### Latent variable 1
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+laDim = 1
+
+#combining latent variable x data with latent varibale y data
+
+lv1.xy = cbind(
+  PLSC$TExPosition.Data$lx[,laDim, drop = FALSE],
+  PLSC$TExPosition.Data$ly[,laDim, drop = FALSE])
+
+colnames(lv1.xy) = 
+  c(paste0('LX',laDim), paste0('LY',laDim))
+
+lv1 = createFactorMap(lv1.xy,
+                      title = 'PLSC: First Pair of Latent Variables',
+                      col.points = Gcolors,
+                      alpha.points = .1,
+                      col.labels = Gcolors,
+                      alpha.labels = 0
+                      )
+
+LV1.a001 = lv1$zeMap+
+  xlab(paste0("X Latent Variable ", laDim))+
+  ylab(paste0("Y Latent Variable ", laDim))
+
+# add group means to the factor map
+
+Gmeans = PTCA4CATA::getMeans(lv1.xy, gender)
+
+#recode to ensure colors match gender properly
+
+col4Means = recode(rownames(Gmeans),
+                  "female" = "lightslategrey", 
+                 "male" = "darkorchid1")
+
+#Factor map with means
+
+MapMeans = PTCA4CATA::createFactorMap(Gmeans,
+          constraints = lv1$constraints,
+          col.points = col4Means,
+          cex = 5, #size of the dot
+          col.label = col4Means,
+          text.cex = 4)
+
+#Factor map with observations and group means
+
+lv1.with.Means = LV1.a001+
+  MapMeans$zeMap_dots + MapMeans$zeMap_text
+
+print(lv1.with.Means)
+```
+
+
+### Confidence Intervals
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+#Bootstrap for the groups in the LV Space
+# Bootstrap for CI
+
+BootCube.Graph = PTCA4CATA::Boot4Mean(lv1.xy,
+                design = gender,
+                niter = 1000,
+                suppressProgressBar = TRUE)
+
+# The following creates the ellipses for the CI plots
+
+dimnames(BootCube.Graph$BootCube)[[2]] = c("LX1","LY1")
+GraphEllipse = PTCA4CATA::MakeCIEllipses(
+  BootCube.Graph$BootCube[,1:2,],
+  names.of.factors = c("LX1","LY1"),
+  col = col4Means,
+  p.level = .95
+)
+
+#latent variable map with observations, means, and confidence intervals
+
+lv1.withCI = LV1.a001+MapMeans$zeMap_text+MapMeans$zeMap_dots+GraphEllipse
+print(lv1.withCI)
+```
+
+### Contributions for LV1
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#Contribution for rows
+
+#color scheme
+
+Fi = PLSC$TExPosition.Data$fi
+
+col4rows = prettyGraphsColorSelection(nrow(Fi),
+                                      starting.color =1)
+ctr.rows = PLSC$TExPosition.Data$ci
+
+#contributions of the rows times the positive, neutral, or negative sign
+# of the factor score of the rows. 
+signed.ctri = ctr.rows * sign(Fi)
+
+plot.Ctr.rows.1 = PrettyBarPlot2(
+  bootratio = round(100*signed.ctri[,1]),
+  threshold = 100/nrow(signed.ctri),
+  ylim = c(-25,10),
+  horizontal = FALSE,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4rows),
+  color4ns = "gray75",
+  plotnames = TRUE,
+  main = "Important Contributions I-set: LV1",
+  ylab = "Signed Contributions"
+)
+print(plot.Ctr.rows.1)
+
+#same process for the columns
+
+Fj = PLSC$TExPosition.Data$fj
+
+col4columns = prettyGraphsColorSelection(nrow(Fj),
+                                      starting.color =42)
+ctr.columns = PLSC$TExPosition.Data$cj
+
+signed.ctrj = ctr.columns * sign(Fj)
+
+plot.Ctr.columns.1 = PrettyBarPlot2(
+  bootratio = round(100*signed.ctrj[,1]),
+  threshold = 100/nrow(signed.ctrj),
+  ylim = c(-30,10),
+  horizontal = FALSE,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4columns),
+  color4ns = "gray75",
+  plotnames = TRUE,
+  main = "Important Contributions J-set: LV1",
+  ylab = "Signed Contributions"
+)
+print(plot.Ctr.columns.1)
+```
+
+### Bootstrap
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+plotBR.rows.1 = PrettyBarPlot2(
+  bootratio = Bootstrap.4.PLSC$bootRatios.i[,1],
+  threshold = 2,
+  ylim = NULL,
+  horizontal = FALSE,
+  signifOnly = TRUE, 
+  color4bar = gplots::col2hex(col4rows),
+  plotnames = TRUE,
+  main = "Bootstrap Ratios. I-set: LV1",
+  ylab = "Bootstrap Ratios"
+)
+
+print(plotBR.rows.1)
+
+plotBR.columns.1 = PrettyBarPlot2(
+  bootratio = Bootstrap.4.PLSC$bootRatios.j[,1],
+  threshol = 2,
+  ylim = NULL,
+  horizontal = FALSE,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4columns),
+  plotnames = TRUE,
+  main = "Bootstrap Ratios. J-set: LV1",
+  ylab = "Bootstrap Ratios"
+)
+
+print(plotBR.columns.1)
+```
+
+### Latent variable 2
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+laDim = 2
+
+#combining latent variable x data with latent varibale y data
+
+lv2.xy = cbind(
+  PLSC$TExPosition.Data$lx[,laDim, drop = FALSE],
+  PLSC$TExPosition.Data$ly[,laDim, drop = FALSE])
+
+colnames(lv2.xy) = 
+  c(paste0('LX',laDim), paste0('LY',laDim))
+
+lv2 = createFactorMap(lv2.xy,
+                      title = 'PLSC: Second Pair of Latent Variables',
+                      col.points = Gcolors,
+                      alpha.points = .1,
+                      col.labels = Gcolors,
+                      alpha.labels = 0
+                      )
+
+LV2.a001 = lv2$zeMap+
+  xlab(paste0("X Latent Variable ", laDim))+
+  ylab(paste0("Y Latent Variable ", laDim))
+
+# add group means to the factor map
+
+Gmeans.2 = PTCA4CATA::getMeans(lv2.xy, gender)
+
+#recode to ensure colors match gender properly
+
+col4Means.2 = recode(rownames(Gmeans.2),
+                  "female" = "lightslategrey", 
+                 "male" = "darkorchid1")
+
+#Factor map with means
+
+MapMeans.2 = PTCA4CATA::createFactorMap(Gmeans.2,
+          constraints = lv2$constraints,
+          col.points = col4Means.2,
+          cex = 5, #size of the dot
+          col.label = col4Means.2,
+          text.cex = 4)
+
+#Factor map with observations and group means
+
+lv2.with.Means = LV2.a001+
+  MapMeans.2$zeMap_dots + MapMeans.2$zeMap_text
+
+print(lv2.with.Means)
+```
+
+
+### Confidence Intervals
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+#Bootstrap for the groups in the LV Space
+# Bootstrap for CI
+
+BootCube.Graph = PTCA4CATA::Boot4Mean(lv2.xy,
+                design = gender,
+                niter = 1000,
+                suppressProgressBar = TRUE)
+
+# The following creates the ellipses for the CI plots
+
+dimnames(BootCube.Graph$BootCube)[[2]] = c("LX2","LY2")
+GraphEllipse.2 = PTCA4CATA::MakeCIEllipses(
+  BootCube.Graph$BootCube[,1:2,],
+  names.of.factors = c("LX2","LY2"),
+  col = col4Means.2,
+  p.level = .95
+)
+
+#latent variable map with observations, means, and confidence intervals
+
+lv2.withCI = LV2.a001+MapMeans.2$zeMap_text+MapMeans.2$zeMap_dots+GraphEllipse.2
+print(lv2.withCI)
+```
+
+### Contributions for LV2
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#Contribution for rows
+
+#color scheme
+
+Fi.2 = PLSC$TExPosition.Data$fi
+
+col4rows.2 = prettyGraphsColorSelection(nrow(Fi.2),
+                                      starting.color =1)
+ctr.rows.2 = PLSC$TExPosition.Data$ci
+
+#contributions of the rows times the positive, neutral, or negative sign
+# of the factor score of the rows.
+
+signed.ctri.2 = ctr.rows.2 * sign(Fi.2)
+
+plot.Ctr.rows.2 = PrettyBarPlot2(
+  bootratio = round(100*signed.ctri.2[,2]),
+  threshold = 100/nrow(signed.ctri.2),
+  ylim = c(-25,10),
+  horizontal = FALSE,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4rows.2),
+  plotnames = TRUE,
+  main = "Important Contributions I-set: LV2",
+  ylab = "Signed Contributions"
+)
+print(plot.Ctr.rows.2)
+
+#same process for the columns
+
+Fj.2 = PLSC$TExPosition.Data$fj
+
+col4columns.2 = prettyGraphsColorSelection(nrow(Fj.2),
+                                      starting.color =42)
+ctr.columns.2 = PLSC$TExPosition.Data$cj
+
+signed.ctrj.2 = ctr.columns.2 * sign(Fj.2)
+
+plot.Ctr.columns.2 = PrettyBarPlot2(
+  bootratio = round(100*signed.ctrj.2[,2]),
+  threshold = 100/nrow(signed.ctrj.2),
+  ylim = c(-30,10),
+  horizontal = FALSE,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4columns.2),
+  plotnames = TRUE,
+  main = "Important Contributions J-set: LV2",
+  ylab = "Signed Contributions"
+)
+print(plot.Ctr.columns.2)
+```
+
+### Bootstrap
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+plotBR.rows.2 = PrettyBarPlot2(
+  bootratio = Bootstrap.4.PLSC$bootRatios.i[,2],
+  threshold = 2,
+  ylim = NULL,
+  horizontal = FALSE,
+  signifOnly = TRUE, 
+  color4bar = gplots::col2hex(col4rows),
+  plotnames = TRUE,
+  main = "Bootstrap Ratios. I-set: LV2",
+  ylab = "Bootstrap Ratios"
+)
+
+print(plotBR.rows.2)
+
+plotBR.columns.2 = PrettyBarPlot2(
+  bootratio = Bootstrap.4.PLSC$bootRatios.j[,2],
+  threshol = 2,
+  ylim = NULL,
+  horizontal = FALSE,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4columns),
+  plotnames = TRUE,
+  main = "Bootstrap Ratios. J-set: LV2",
+  ylab = "Bootstrap Ratios"
+)
+
+print(plotBR.columns.2)
+```
+
+
+
+### Conclusion 
+
+Biology and Chemistry are highly correlated with Medicine while Reading is 
+negatively correlated with Cars.Males and Females form distinct groups 
+along the X and Y LV in both dimensions.Biology, Chemistry, Medicine correspond 
+to the female group on LV1.Physics, Math, and Politics correspond to the male 
+group on LV2 as does Adrenaline Sport, Cars, and Law. Shopping is a quality of 
+females on LV2.
+
+
+

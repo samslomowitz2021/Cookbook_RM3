@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 2 Correspondence Analysis | Multivariate Statistics for Data Science</title>
+  <meta name="description" content="RM3 Cookbook" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 2 Correspondence Analysis | Multivariate Statistics for Data Science" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:image" content="https://www.flickr.com/gp/194778449@N08/488nZ3" />
+  <meta property="og:description" content="RM3 Cookbook" />
+  <meta name="github-repo" content="samslomowitz2021/bookdown40" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 2 Correspondence Analysis | Multivariate Statistics for Data Science" />
+  
+  <meta name="twitter:description" content="RM3 Cookbook" />
+  <meta name="twitter:image" content="https://www.flickr.com/gp/194778449@N08/488nZ3" />
+
+<meta name="author" content="Samuel Slomowitz" />
+
+
+<meta name="date" content="2022-01-04" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="pca.html"/>
+<link rel="next" href="mca.html"/>
+<script src="libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./"><img src="img.png" width="280"></a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+<li class="chapter" data-level="1" data-path="pca.html"><a href="pca.html"><i class="fa fa-check"></i><b>1</b> Inference Prinicipal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="pca.html"><a href="pca.html#description-of-method-and-data"><i class="fa fa-check"></i><b>1.1</b> Description of Method and Data</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="pca.html"><a href="pca.html#method"><i class="fa fa-check"></i><b>1.1.1</b> Method</a></li>
+<li class="chapter" data-level="1.1.2" data-path="pca.html"><a href="pca.html#data"><i class="fa fa-check"></i><b>1.1.2</b> Data</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="pca.html"><a href="pca.html#heatmap-correlation-matrix"><i class="fa fa-check"></i><b>1.2</b> Heatmap: Correlation matrix</a></li>
+<li class="chapter" data-level="1.3" data-path="pca.html"><a href="pca.html#analysis"><i class="fa fa-check"></i><b>1.3</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="pca.html"><a href="pca.html#testing-the-eigenvalues"><i class="fa fa-check"></i><b>1.3.1</b> Testing the eigenvalues</a></li>
+<li class="chapter" data-level="1.3.2" data-path="pca.html"><a href="pca.html#scree-plot-with-permutation-testing"><i class="fa fa-check"></i><b>1.3.2</b> Scree Plot with Permutation Testing</a></li>
+<li class="chapter" data-level="1.3.3" data-path="pca.html"><a href="pca.html#row-factor-scores"><i class="fa fa-check"></i><b>1.3.3</b> Row Factor Scores</a></li>
+<li class="chapter" data-level="1.3.4" data-path="pca.html"><a href="pca.html#row-factor-scores-with-means"><i class="fa fa-check"></i><b>1.3.4</b> Row Factor Scores with Means</a></li>
+<li class="chapter" data-level="1.3.5" data-path="pca.html"><a href="pca.html#row-factor-scores-with-tolerance-interval"><i class="fa fa-check"></i><b>1.3.5</b> Row Factor Scores with Tolerance interval</a></li>
+<li class="chapter" data-level="1.3.6" data-path="pca.html"><a href="pca.html#bootstrap-interval"><i class="fa fa-check"></i><b>1.3.6</b> Bootstrap interval</a></li>
+<li class="chapter" data-level="1.3.7" data-path="pca.html"><a href="pca.html#loadings"><i class="fa fa-check"></i><b>1.3.7</b> Loadings</a></li>
+<li class="chapter" data-level="1.3.8" data-path="pca.html"><a href="pca.html#dimensions-2-and-3"><i class="fa fa-check"></i><b>1.3.8</b> Dimensions 2 and 3</a></li>
+<li class="chapter" data-level="1.3.9" data-path="pca.html"><a href="pca.html#loadings-circle-of-correlation"><i class="fa fa-check"></i><b>1.3.9</b> Loadings / Circle of Correlation</a></li>
+<li class="chapter" data-level="1.3.10" data-path="pca.html"><a href="pca.html#contribution-barplots-and-bootstrap-ratios-on-variables"><i class="fa fa-check"></i><b>1.3.10</b> Contribution barplots and Bootstrap Ratios on Variables</a></li>
+</ul></li>
+<li class="chapter" data-level="1.4" data-path="pca.html"><a href="pca.html#summary"><i class="fa fa-check"></i><b>1.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="ca.html"><a href="ca.html"><i class="fa fa-check"></i><b>2</b> Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="ca.html"><a href="ca.html#the-data-pattern"><i class="fa fa-check"></i><b>2.1</b> The data pattern</a></li>
+<li class="chapter" data-level="2.2" data-path="ca.html"><a href="ca.html#analysis-1"><i class="fa fa-check"></i><b>2.2</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="ca.html"><a href="ca.html#scree-plot"><i class="fa fa-check"></i><b>2.2.1</b> Scree Plot</a></li>
+<li class="chapter" data-level="2.2.2" data-path="ca.html"><a href="ca.html#plot-the-asymmetric-factor-scores"><i class="fa fa-check"></i><b>2.2.2</b> Plot the asymmetric factor scores</a></li>
+<li class="chapter" data-level="2.2.3" data-path="ca.html"><a href="ca.html#plot-the-symmetric-plot"><i class="fa fa-check"></i><b>2.2.3</b> Plot the symmetric plot</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="ca.html"><a href="ca.html#summary-1"><i class="fa fa-check"></i><b>2.3</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="mca.html"><a href="mca.html"><i class="fa fa-check"></i><b>3</b> Multiple Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="mca.html"><a href="mca.html#cleaning-the-data"><i class="fa fa-check"></i><b>3.1</b> Cleaning the data</a></li>
+<li class="chapter" data-level="3.2" data-path="mca.html"><a href="mca.html#recoding-the-data"><i class="fa fa-check"></i><b>3.2</b> Recoding the data</a></li>
+<li class="chapter" data-level="3.3" data-path="mca.html"><a href="mca.html#analysis-2"><i class="fa fa-check"></i><b>3.3</b> Analysis</a></li>
+<li class="chapter" data-level="3.4" data-path="mca.html"><a href="mca.html#summary-2"><i class="fa fa-check"></i><b>3.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="bada.html"><a href="bada.html"><i class="fa fa-check"></i><b>4</b> Barycentric Discriminant Analysis</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="bada.html"><a href="bada.html#cleaning-the-data-1"><i class="fa fa-check"></i><b>4.1</b> Cleaning the data</a></li>
+<li class="chapter" data-level="4.2" data-path="bada.html"><a href="bada.html#heat-map"><i class="fa fa-check"></i><b>4.2</b> Heat map</a></li>
+<li class="chapter" data-level="4.3" data-path="bada.html"><a href="bada.html#analysis-3"><i class="fa fa-check"></i><b>4.3</b> Analysis</a></li>
+<li class="chapter" data-level="4.4" data-path="bada.html"><a href="bada.html#fixed-confusion-matrix"><i class="fa fa-check"></i><b>4.4</b> Fixed Confusion Matrix</a></li>
+<li class="chapter" data-level="4.5" data-path="bada.html"><a href="bada.html#random-confusion-matrix"><i class="fa fa-check"></i><b>4.5</b> Random Confusion Matrix</a></li>
+<li class="chapter" data-level="4.6" data-path="bada.html"><a href="bada.html#summary-3"><i class="fa fa-check"></i><b>4.6</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dica.html"><a href="dica.html"><i class="fa fa-check"></i><b>5</b> Discriminant Correspondence Analysis</a>
+<ul>
+<li class="chapter" data-level="5.0.1" data-path="dica.html"><a href="dica.html#heatmap"><i class="fa fa-check"></i><b>5.0.1</b> Heatmap</a></li>
+<li class="chapter" data-level="5.1" data-path="dica.html"><a href="dica.html#analysis-4"><i class="fa fa-check"></i><b>5.1</b> Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="dica.html"><a href="dica.html#fixed-confusion-matrix-1"><i class="fa fa-check"></i><b>5.2</b> Fixed Confusion Matrix</a></li>
+<li class="chapter" data-level="5.3" data-path="dica.html"><a href="dica.html#random-confusion-matrix-1"><i class="fa fa-check"></i><b>5.3</b> Random Confusion Matrix</a></li>
+<li class="chapter" data-level="5.4" data-path="dica.html"><a href="dica.html#summary-4"><i class="fa fa-check"></i><b>5.4</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="plsc.html"><a href="plsc.html"><i class="fa fa-check"></i><b>6</b> Partial Least Square Correlation</a>
+<ul>
+<li class="chapter" data-level="6.0.1" data-path="plsc.html"><a href="plsc.html#correlation-plot"><i class="fa fa-check"></i><b>6.0.1</b> Correlation plot</a></li>
+<li class="chapter" data-level="6.0.2" data-path="plsc.html"><a href="plsc.html#analysis-5"><i class="fa fa-check"></i><b>6.0.2</b> Analysis</a></li>
+<li class="chapter" data-level="6.0.3" data-path="plsc.html"><a href="plsc.html#inferences"><i class="fa fa-check"></i><b>6.0.3</b> Inferences</a></li>
+<li class="chapter" data-level="6.0.4" data-path="plsc.html"><a href="plsc.html#graphics"><i class="fa fa-check"></i><b>6.0.4</b> Graphics</a></li>
+<li class="chapter" data-level="6.0.5" data-path="plsc.html"><a href="plsc.html#color-scheme-for-gender"><i class="fa fa-check"></i><b>6.0.5</b> Color Scheme for Gender</a></li>
+<li class="chapter" data-level="6.0.6" data-path="plsc.html"><a href="plsc.html#latent-variable-1"><i class="fa fa-check"></i><b>6.0.6</b> Latent variable 1</a></li>
+<li class="chapter" data-level="6.0.7" data-path="plsc.html"><a href="plsc.html#confidence-intervals"><i class="fa fa-check"></i><b>6.0.7</b> Confidence Intervals</a></li>
+<li class="chapter" data-level="6.0.8" data-path="plsc.html"><a href="plsc.html#contributions-for-lv1"><i class="fa fa-check"></i><b>6.0.8</b> Contributions for LV1</a></li>
+<li class="chapter" data-level="6.0.9" data-path="plsc.html"><a href="plsc.html#bootstrap"><i class="fa fa-check"></i><b>6.0.9</b> Bootstrap</a></li>
+<li class="chapter" data-level="6.0.10" data-path="plsc.html"><a href="plsc.html#latent-variable-2"><i class="fa fa-check"></i><b>6.0.10</b> Latent variable 2</a></li>
+<li class="chapter" data-level="6.0.11" data-path="plsc.html"><a href="plsc.html#confidence-intervals-1"><i class="fa fa-check"></i><b>6.0.11</b> Confidence Intervals</a></li>
+<li class="chapter" data-level="6.0.12" data-path="plsc.html"><a href="plsc.html#contributions-for-lv2"><i class="fa fa-check"></i><b>6.0.12</b> Contributions for LV2</a></li>
+<li class="chapter" data-level="6.0.13" data-path="plsc.html"><a href="plsc.html#bootstrap-1"><i class="fa fa-check"></i><b>6.0.13</b> Bootstrap</a></li>
+<li class="chapter" data-level="6.0.14" data-path="plsc.html"><a href="plsc.html#conclusion"><i class="fa fa-check"></i><b>6.0.14</b> Conclusion</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="distatis.html"><a href="distatis.html"><i class="fa fa-check"></i><b>7</b> DISTATIS</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="distatis.html"><a href="distatis.html#analysis-6"><i class="fa fa-check"></i><b>7.1</b> Analysis</a></li>
+<li class="chapter" data-level="7.2" data-path="distatis.html"><a href="distatis.html#graphs"><i class="fa fa-check"></i><b>7.2</b> Graphs</a>
+<ul>
+<li class="chapter" data-level="7.2.1" data-path="distatis.html"><a href="distatis.html#summary-5"><i class="fa fa-check"></i><b>7.2.1</b> Summary</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="mfa.html"><a href="mfa.html"><i class="fa fa-check"></i><b>8</b> MFA</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="mfa.html"><a href="mfa.html#analysis-7"><i class="fa fa-check"></i><b>8.1</b> Analysis</a>
+<ul>
+<li class="chapter" data-level="8.1.1" data-path="mfa.html"><a href="mfa.html#graphs-1"><i class="fa fa-check"></i><b>8.1.1</b> Graphs</a></li>
+</ul></li>
+<li class="chapter" data-level="8.2" data-path="mfa.html"><a href="mfa.html#summary-6"><i class="fa fa-check"></i><b>8.2</b> Summary</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/samslomowitz2021/bookdown40.git" target="blank">GitHub</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Multivariate Statistics for Data Science</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="ca" class="section level1" number="2">
+<h1><span class="header-section-number">Chapter 2</span> Correspondence Analysis</h1>
+<p>Correspondence Analysis is similar to PCA, but is meant for qualitative data.
+Factor scores are generated for rows and columns, and both sets of factor
+scores have the same variance. Thus, they can be plotted on the same map for the
+analysis. CA also has distributional equivalence. Thus, merging two rows with the
+same profile does not affect the output and the output would be identical. A profile
+is a relative proportion versus an absolute number as in PCA. While PCA minimizes the
+sum of square of distance, CA minimized the sum of squares of mass times distance squared
+or Inertia.</p>
+<p>The data set contains 120 consumers who evaluated their emotions upon tasting
+5 types of low income sausages. The objective was to then related these
+reported emotions to their sensory profiles. The participants were all
+female from either Mexico City or Monterrey.</p>
+<p>The data table is a contingency table. Thus, variables are on the rows and
+columns while observations are the items of the table. Further, in a contingency
+table, the observations are independence from one other.</p>
+<p>The research question of this section is: Do types of low-income sausages differ
+in the emotional responses people attribute to them?</p>
+<p>The observations for Happy emotions for the Alpino sausages is 27. Each observation
+has one sausage type and one emotion survey response.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="ca.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mt1) <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="ca.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="ca.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_paper</span>(<span class="st">&quot;hover&quot;</span>, <span class="at">full_width =</span> F)</span></code></pre></div>
+<table class=" lightable-paper lightable-hover" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Happy
+</th>
+<th style="text-align:right;">
+Pleasant
+</th>
+<th style="text-align:right;">
+Unpleasant
+</th>
+<th style="text-align:right;">
+Salivating
+</th>
+<th style="text-align:right;">
+Famished
+</th>
+<th style="text-align:right;">
+Refreshed
+</th>
+<th style="text-align:right;">
+Desired
+</th>
+<th style="text-align:right;">
+Soothed
+</th>
+<th style="text-align:right;">
+Comforted
+</th>
+<th style="text-align:right;">
+Disgusted
+</th>
+<th style="text-align:right;">
+Energetic
+</th>
+<th style="text-align:right;">
+Joy
+</th>
+<th style="text-align:right;">
+Impressed
+</th>
+<th style="text-align:right;">
+Interested
+</th>
+<th style="text-align:right;">
+Irritated
+</th>
+<th style="text-align:right;">
+Melancholic
+</th>
+<th style="text-align:right;">
+Nostalgic
+</th>
+<th style="text-align:right;">
+Relaxed
+</th>
+<th style="text-align:right;">
+Revital
+</th>
+<th style="text-align:right;">
+Romantic
+</th>
+<th style="text-align:right;">
+Sad
+</th>
+<th style="text-align:right;">
+Sensual
+</th>
+<th style="text-align:right;">
+Espiritual
+</th>
+<th style="text-align:right;">
+Thirsty
+</th>
+<th style="text-align:right;">
+Well-being
+</th>
+<th style="text-align:right;">
+Guilty
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Alpino
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bafar
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Capistrano
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chimex
+</td>
+<td style="text-align:right;">
+26
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Duby
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+</tbody>
+</table>
+<div id="the-data-pattern" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> The data pattern</h2>
+<p>The data pattern using the chi-square is in contrast to a correlation matrix seen in PCA.
+The chi-square test for independence is conducted to test for the independence of the
+rows (sausage type) and columns (emotional response). It is the sum of squares for the
+observed value minus the expected value, all squared, divided by the expected value.</p>
+<p>The degrees of freedom are calculated by the number of rows minus one times the
+number of columns minus one of the contingency table. The number of observations
+dictates the effect of the chi-square distribution. Thus, a small number of observations
+on the order of a few hundred would lead to a smaller effect than a million obsrvations.</p>
+<p>The p-value for the chi-square is non-significant. Thus, the Null hypothesis is true
+that the rows are independent of the columns. In other words, there is no deviation
+from independence, partly due to the small number of observations.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="ca.html#cb15-1" aria-hidden="true" tabindex="-1"></a>chi2 </span></code></pre></div>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test
+## 
+## data:  mt1
+## X-squared = 78.753, df = 100, p-value = 0.9425</code></pre>
+<p>Here we are using frequencies of qualitative data while in PCA we used quantitative data.
+The chi-square statistic is divided by the total sum of the data while maintaining
+the data structure of the table versus summing all the chi-square statistics to one number.
+Chi-square becomes a variance between what is expected and what is observed. Just like PCA
+decomposes a variance, CA decomposed chi-square.</p>
+<p>Here is the heatmap for the chi-square distribution on this data set. It is a data
+visualization of the chi-square values for each set of observations. It is not a correlation
+matrix but rather explains variance. The equivalent of the correlation coefficient in CA
+is the Phi prime, squared value, which is a eigenvalue in the same dimension by chance.</p>
+<p>Bafar is capturing a positive probability frequency with being Famished while
+Capistrano is capturing a positive probability frequency with Desired. Duby can
+be described closer to Joy and Impressed and away from Melancholic. Chimex is closer
+in Eucledian distance to Revital while Alpino is far from Revital and Bafar from
+Romantic.</p>
+<p><img src="_main_files/figure-html/corplot-1.png" width="960" /></p>
+</div>
+<div id="analysis-1" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Analysis</h2>
+<p>Below is the fastPerm4CA, which computes a permutation test for CA when one has
+a real contingency table. Multinomial distribution is used for the resampling.
+fastPerm4CA can be used for large tables to test for inertia and for the test
+on the eigenvalues.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="ca.html#cb17-1" aria-hidden="true" tabindex="-1"></a>res_fast_perm <span class="ot">&lt;-</span> data4PCCAR<span class="sc">::</span><span class="fu">fastPerm4CA</span>(mt1, <span class="at">nIter =</span> <span class="dv">100</span>, <span class="at">compact =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb17-2"><a href="ca.html#cb17-2" aria-hidden="true" tabindex="-1"></a>res_fast_boot <span class="ot">&lt;-</span> data4PCCAR<span class="sc">::</span><span class="fu">fastBoot4CA</span>(mt1)</span></code></pre></div>
+<div id="scree-plot" class="section level3" number="2.2.1">
+<h3><span class="header-section-number">2.2.1</span> Scree Plot</h3>
+<p>Here are the results from permutation with Scree plot, with violet color
+indicating significant components.The estimated p-values were added to
+the <code>PlotScree</code> function.</p>
+<p>As seen here, permutation testing did not capture significant values for
+dimension capturing inertia. There are 4 dimension shown as there are 5 sausage types.
+Thus, the number of dimensions is equal to the number of row or columns minus 1.</p>
+<p><img src="_main_files/figure-html/scree%20plot-1.png" width="960" /></p>
+</div>
+<div id="plot-the-asymmetric-factor-scores" class="section level3" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> Plot the asymmetric factor scores</h3>
+<p>A simplex is a subspace of space with constraints. The variables are in the same
+space as the rows with the barycenter at the origin. A barycenter is the middle or
+center of gravity of the data. Information is inversely proportional to the frequency of
+information. Thus, the variables farthest away from other row data points explain the
+biggest variance. Romantic, Melancholic, Sensual, Famished, Guilty, and Espiritual
+capture the most variance in the data, based the simplex. The eigenvalue of .01
+for the first dimension correspond to a correlation coefficient. Thus, there is
+very low correlation value along the first dimension as well as for the next three
+dimensions.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="ca.html#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make the simplex visible</span></span>
+<span id="cb18-2"><a href="ca.html#cb18-2" aria-hidden="true" tabindex="-1"></a>zePoly.J <span class="ot">&lt;-</span>  <span class="fu">ggConvexHull</span>(Fj.a, </span>
+<span id="cb18-3"><a href="ca.html#cb18-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">percentage =</span> <span class="dv">1</span>,</span>
+<span id="cb18-4"><a href="ca.html#cb18-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">col.hull =</span> ggplot2<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">&#39;darkorchid&#39;</span>,.<span class="dv">2</span>),</span>
+<span id="cb18-5"><a href="ca.html#cb18-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">col.line =</span> ggplot2<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">&#39;darkorchid&#39;</span>,.<span class="dv">7</span>),</span>
+<span id="cb18-6"><a href="ca.html#cb18-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">line.size =</span> .<span class="dv">4</span>,</span>
+<span id="cb18-7"><a href="ca.html#cb18-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha.hull =</span> .<span class="dv">2</span>,</span>
+<span id="cb18-8"><a href="ca.html#cb18-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">names.of.factors =</span> <span class="st">&quot;Dimension &quot;</span>)</span>
+<span id="cb18-9"><a href="ca.html#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="ca.html#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Labels</span></span>
+<span id="cb18-11"><a href="ca.html#cb18-11" aria-hidden="true" tabindex="-1"></a>labels4CA <span class="ot">&lt;-</span> <span class="fu">createxyLabels</span>(<span class="at">resCA =</span> resCA.asym)</span>
+<span id="cb18-12"><a href="ca.html#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="ca.html#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all elements you want to include in this plot</span></span>
+<span id="cb18-14"><a href="ca.html#cb18-14" aria-hidden="true" tabindex="-1"></a>map.I.sup.asym <span class="ot">&lt;-</span> asymMap<span class="sc">$</span>baseMap <span class="sc">+</span> zePoly.J <span class="sc">+</span> </span>
+<span id="cb18-15"><a href="ca.html#cb18-15" aria-hidden="true" tabindex="-1"></a>                          asymMap<span class="sc">$</span>I_points <span class="sc">+</span></span>
+<span id="cb18-16"><a href="ca.html#cb18-16" aria-hidden="true" tabindex="-1"></a>                          asymMap<span class="sc">$</span>J_labels <span class="sc">+</span> asymMap<span class="sc">$</span>J_points <span class="sc">+</span> </span>
+<span id="cb18-17"><a href="ca.html#cb18-17" aria-hidden="true" tabindex="-1"></a>                         </span>
+<span id="cb18-18"><a href="ca.html#cb18-18" aria-hidden="true" tabindex="-1"></a>                          labels4CA <span class="sc">+</span> </span>
+<span id="cb18-19"><a href="ca.html#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggtitle</span>(<span class="st">&#39;Asymmetric Map and Simplex&#39;</span>) </span>
+<span id="cb18-20"><a href="ca.html#cb18-20" aria-hidden="true" tabindex="-1"></a>map.I.sup.asym</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-29-1.png" width="960" /></p>
+<p>The first dimension separates survival emotions from higher ordered emotions.
+For example, Energetic, Famished, and Salivating are on the right (survival
+emotions) while Revital, Romantic, and Desired are on the left (higher ordered
+emotions). The second dimension separates positive/negative responses from
+more neutral responses. For example, Disgusted, Romantic, and Nostalgic are
+separate from Desired, Salivating, and Famished.</p>
+</div>
+<div id="plot-the-symmetric-plot" class="section level3" number="2.2.3">
+<h3><span class="header-section-number">2.2.3</span> Plot the symmetric plot</h3>
+<p>Below is a symmetric biplot of the data. Chimex has the highest frequency probability
+for Romantic compared to the other sausage types while Duby is closest for the Guilty
+emotional response.</p>
+<div id="this-is-a-biplot" class="section level4" number="2.2.3.1">
+<h4><span class="header-section-number">2.2.3.1</span> This is a biplot:</h4>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="ca.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a symmetric map with sup and correct constraints</span></span>
+<span id="cb19-2"><a href="ca.html#cb19-2" aria-hidden="true" tabindex="-1"></a>map.IJ.sup.sym <span class="ot">&lt;-</span> symMap<span class="sc">$</span>baseMap <span class="sc">+</span> <span class="co"># the baseMap needs to come from your mapSup to be correct (at least for this example)</span></span>
+<span id="cb19-3"><a href="ca.html#cb19-3" aria-hidden="true" tabindex="-1"></a>  symMap<span class="sc">$</span>I_labels <span class="sc">+</span> symMap<span class="sc">$</span>I_points <span class="sc">+</span></span>
+<span id="cb19-4"><a href="ca.html#cb19-4" aria-hidden="true" tabindex="-1"></a>  symMap<span class="sc">$</span>J_labels <span class="sc">+</span> symMap<span class="sc">$</span>J_points <span class="sc">+</span> </span>
+<span id="cb19-5"><a href="ca.html#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&#39;Symmetric Map&#39;</span>) <span class="sc">+</span> </span>
+<span id="cb19-6"><a href="ca.html#cb19-6" aria-hidden="true" tabindex="-1"></a>  labels4CA</span>
+<span id="cb19-7"><a href="ca.html#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="ca.html#cb19-8" aria-hidden="true" tabindex="-1"></a>map.IJ.sup.sym</span></code></pre></div>
+<p><img src="_main_files/figure-html/biplot_f-1.png" width="960" /></p>
+<p>Below is the plots separated into two.</p>
+<p>If I were a grocery clerk, I would put Capistrano and Chimez together and Bafar
+and Alpino together as the Symmetric Row plot makes this split along the first dimension.
+The Symmetric Column plot splits the Survival Emotions (Guilty and Famished) from
+the Higher Ordered Emotions (Espiritual, Romantic, Melancholic, and Sensual) along the second
+dimension.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-30-1.png" width="960" /></p>
+</div>
+<div id="contributions-and-bootstrap-ratios-barplots" class="section level4" number="2.2.3.2">
+<h4><span class="header-section-number">2.2.3.2</span> Contributions and bootstrap ratios barplots</h4>
+<div id="contribution-barplots" class="section level5" number="2.2.3.2.1">
+<h5><span class="header-section-number">2.2.3.2.1</span> Contribution barplots</h5>
+<p>For CA, we plot the contributions for both rows and columns.</p>
+<p>As referenced in the analysis above, Bafar and Chimex makes a important contribution
+to the inertia of the chi-square distribution. Famished, Melancholic, and Sensual
+make an important contribution for the first dimension while. Famished, Melancholic,
+Romantic, and Guilty make up an important contribution for the second dimension.</p>
+<p><img src="_main_files/figure-html/unnamed-chunk-31-1.png" width="960" /></p>
+<p>Energetic, Famished, and Salivating as well as Romantic and Desired are among
+the variable the contribution importantly to the first dimension. Disgusted and
+salivating are variable discussed above that also contributed importantly to the
+second dimension.</p>
+</div>
+<div id="bootstrap-ratios" class="section level5" number="2.2.3.2.2">
+<h5><span class="header-section-number">2.2.3.2.2</span> Bootstrap ratios</h5>
+<p>(The next set of code is used to put two figures side to side).</p>
+<p>Bafar and Chimex as stable row variables in the analysis while
+Sensual and Famished are stables column variables.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="ca.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb20-2"><a href="ca.html#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.grob</span>(ba001.BR1.I),<span class="fu">as.grob</span>(ba002.BR1.J),<span class="fu">as.grob</span>(ba003.BR2.I),<span class="fu">as.grob</span>(ba004.BR2.J),</span>
+<span id="cb20-3"><a href="ca.html#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,<span class="at">nrow =</span> <span class="dv">2</span>,</span>
+<span id="cb20-4"><a href="ca.html#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">top =</span> <span class="fu">textGrob</span>(<span class="st">&quot;Bootstrap ratios&quot;</span>, <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">18</span>, <span class="at">font =</span> <span class="dv">3</span>))</span>
+<span id="cb20-5"><a href="ca.html#cb20-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="_main_files/figure-html/grid_BR-1.png" width="960" /></p>
+<p>Here are the contribution and bootstrap ratio plots side by side.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="ca.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb21-2"><a href="ca.html#cb21-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">as.grob</span>(ctrI<span class="fl">.1</span>),<span class="fu">as.grob</span>(ctrJ<span class="fl">.1</span>),<span class="fu">as.grob</span>(ctrI<span class="fl">.2</span>),<span class="fu">as.grob</span>(ctrJ<span class="fl">.2</span>),<span class="fu">as.grob</span>(ba001.BR1.I),<span class="fu">as.grob</span>(ba002.BR1.J),<span class="fu">as.grob</span>(ba003.BR2.I),<span class="fu">as.grob</span>(ba004.BR2.J),</span>
+<span id="cb21-3"><a href="ca.html#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">4</span>,<span class="at">nrow =</span> <span class="dv">2</span>,</span>
+<span id="cb21-4"><a href="ca.html#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">top =</span> <span class="fu">textGrob</span>(<span class="st">&quot;Contribution   &amp;   Bootstrap ratios&quot;</span>, <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">18</span>, <span class="at">font =</span> <span class="dv">3</span>))</span>
+<span id="cb21-5"><a href="ca.html#cb21-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-32-1.png" width="960" /></p>
+</div>
+</div>
+</div>
+</div>
+<div id="summary-1" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> Summary</h2>
+<p>First and foremost, I prefer the symmetric plot do to better visualization.</p>
+<p>When we interpret the factor scores and loadings together, the CA revealed:</p>
+<p>*Chimex has the highest frequency probability for Romantic compared to the
+other sausage types</p>
+<p>*Duby is closest for the Guilty emotional response.</p>
+<p>When we interpret the factor scores and loadings separately, the CA revealed:</p>
+<ul>
+<li><p>Component 1: Capistrano and Chimez vs. Bafar and Alpino</p></li>
+<li><p>Component 2: Survival Emotions (Guilty and Famished) vs. 
+Higher Ordered Emotions (Espiritual, Romantic, Melancholic, and Sensual)</p></li>
+</ul>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="pca.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="mca.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

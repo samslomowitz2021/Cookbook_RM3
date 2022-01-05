@@ -1,0 +1,491 @@
+
+# Barycentric Discriminant Analysis {#bada}
+
+This method is a robust version of discriminant analysis, which groups observations into 
+pre-defined groups such as COVID-19 positive or negative, employed or unemployed, or 
+married, divorced, separated, or single. BADA can even be used when n << p. 
+
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+rm(list = ls())
+graphics.off()
+gc()
+```
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+#leTitre   <- 'BADA: Music and Education'
+#leDir     <- paste0(getwd(),'/')    # Where am I
+#filename  <- 'Music&Education' # my title
+#path2save <-  paste0(leDir, filename)
+```
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ExPosition)
+#devtools::install_github("LukeMoraglia/ExPosition1/TExPosition")
+#devtools::install_github("LukeMoraglia/ExPosition1/TInPosition")
+library(TExPosition)
+library(TInPosition)
+library(PTCA4CATA)
+# devtools::install_github('HerveAbdi/data4PCCAR')
+library(data4PCCAR)
+library(corrplot)
+library(kableExtra)
+library(dplyr)
+```
+
+## Cleaning the data
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# Load data
+music = read.csv("data/music10.csv")
+
+data_2=music[,-1]
+rownames(data_2)=music[,1]
+data_3 = na.omit(data_2)
+rawData <- data_3
+descriptors <-  rawData[,1:2]
+Xmat <-  rawData[, 3:19]
+Ymat <-  rawData[, 20]
+XYmat <- rawData[, 1:19]
+colnames(XYmat) <- c('Music','Fast','Dance', 'Folk','Country','Classical','Musical',
+                        'Pop','Rock','Metal','Punk','Hiphop','Reg','Swing','RnR','Alt',
+                        'Lat','TT','Opera')
+```
+
+
+The data set is the same from PCA, evaluating music preferences in 931 
+participants. 
+```{r, warning=FALSE,message=FALSE}
+
+head(rawData) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
+
+## Heat map
+
+
+The heat map is on a matrix with the groups of education level on the 
+rows, the variables of music preference on the columns, and the average survey
+score for the respective variables for each of the education levels for the table 
+values. 
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#heatmap
+XYmat2 = as.matrix(XYmat)
+Ymat2 = as.matrix(Ymat)
+
+CorrMeans = PTCA4CATA::getMeans(XYmat2, Ymat2)
+
+CorrMeans2 = as.matrix(CorrMeans)
+corrplot3 = corrplot((CorrMeans2), 
+                          method = "shade",
+                          col = colorRampPalette(c("white", "blue"))(200),
+                          tl.pos = "lt",
+                           tl.col = "black",
+                           tl.cex = 0.8,
+                           is.corr = FALSE,
+                           addCoefasPercent = TRUE,
+                           number.cex = 0.5)
+
+```
+
+## Analysis
+
+```{r, warning=FALSE,message=FALSE, results=FALSE}
+#_________________________________________________
+# Computations ----
+# Run BADA  ----
+resBADA <- tepBADA(XYmat, DESIGN = Ymat,
+                   graphs = FALSE)
+# Inferences ----
+#set.seed(70301) # we had a problem 
+# with the inference part
+# it is addressed iin the Fix from Luke's github
+nIter = 889
+resBADA.inf <- tepBADA.inference.battery(XYmat, 
+                  DESIGN = Ymat,
+                  test.iters = nIter,
+                  graphs = FALSE)
+
+#_________________________________________________
+#_________________________________________________
+```
+
+
+In the plot of the observations and the barycenter means, we see doctoral degree
+and currently a primary school student are distict groups from each other and the 
+other education levels. The rest of the means are near the center of gravity. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# Graphics ----
+# scree for ev  ----
+# The ScreePlot. Fixed Effects. ----
+# Get the ScreePlot
+# scree for ev ----
+PlotScree(ev = resBADA$TExPosition.Data$eigs,
+   title = 'BADA Education Level and Music: Inertia Scree Plot',
+   plotKaiser = FALSE, 
+   color4Kaiser = ggplot2::alpha('darkorchid4', .5),
+   lwd4Kaiser  = 2)
+# Save the plot for pptx
+a0002.Scree.sv <- recordPlot()
+#_________________________________________________
+# wineColors ----
+wineColors <- Ymat
+# get colors for graphs
+wineColors <- recode(wineColors, 
+                     "primary school" = 'blue', 
+            "currently a primary school pupil" = 'gold', 
+            "secondary school" = 'lightpink2',
+            "college/bachelor degree" = 'green',
+            "masters degree" = 'orange',
+            "doctorate degree" = 'red')
+#_________________________________________________
+#  Observations and means ----
+# Observations ----
+#_________________________________________________
+# I-set map ----
+# a graph of the observations
+Imap <- PTCA4CATA::createFactorMap(
+  resBADA$TExPosition.Data$fii,
+  cex = 1, 
+   display.labels = FALSE,
+  col.points = wineColors,
+  col.labels = wineColors,
+  alpha.points = .5
+)
+
+#_________________________________________________
+# make labels ----
+label4Map <- createxyLabels.gen(1,2,
+          lambda = resBADA$TExPosition.Data$eigs,
+          tau = resBADA$TExPosition.Data$t)
+#_________________________________________________
+# Fix Fi ----
+# Note that current version of tepBADA 
+# has a scaling problem
+# Will soon be fixed
+# wineMeans <- resBADA$TExPosition.Data$fi 
+# code when BQDQ is fixed
+wineMeans <- PTCA4CATA::getMeans(
+               resBADA$TExPosition.Data$fii, 
+               Ymat)
+
+# a vector of color for the means
+# Explicit recoding to make sure 
+# that the names match
+# => Needs to be improved!
+col4Means <- recode(rownames(wineMeans), 
+                    "primary school" = 'blue', 
+                    "currently a primary school pupil" = "pink",
+                     "secondary school" = 'brown', 
+                     "college/bachelor degree" = 'orange',
+                     "masters degree" = "green",
+                     "doctorate degree" = "red")
+names(col4Means) <- rownames(wineMeans)
+# the map
+MapGroup <- PTCA4CATA::createFactorMap(wineMeans,
+             # use the constraint from the main map
+             constraints = Imap$constraints,
+             col.points = col4Means,
+             cex = 4,  # size of the dot (bigger)
+              display.labels = TRUE,
+             col.labels = col4Means,
+             text.cex = 3)
+
+# The map with observations and group means
+a003.bada <- Imap$zeMap + 
+               label4Map +
+               MapGroup$zeMap_dots + 
+               MapGroup$zeMap_text
+print(a003.bada)
+```
+
+
+The confidence intervals confirm that currently a primary student is different from 
+all the other education levels as is doctoral degree from all the other education 
+levels. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+# Confidence intervals
+# Bootstrapped CI ----
+#_________________________________________________
+# Create Confidence Interval Plots
+fi.boot <- resBADA.inf$Inference.Data$boot.data$fi.boot.data$boots
+# We want to use the rownames of fi.boot 
+# as reference to get the correct
+# color. 
+# However, the original rownames include "." 
+# and don't match with 
+# the original row names. 
+# So, the `sub` function was used to get rid of 
+# the "." by replacing all "." 
+# in the rownames of fi.boot as an empty 
+# string.
+rownames(fi.boot) <- sub("[[:punct:]]","",
+                          rownames(fi.boot))
+# use function MakeCIEllipses 
+# from package PTCA4CATA
+GraphElli <- PTCA4CATA::MakeCIEllipses(
+    resBADA.inf$Inference.Data$boot.data$fi.boot.data$boots,
+    col = col4Means[rownames(fi.boot)], 
+    # use rownames as reference to pick the color
+    p.level = .95
+)
+#_________________________________________________
+# create the I-map with Observations, 
+# means and confidence intervals
+#
+a004.bada.withCI <-  Imap$zeMap_background  + 
+                        Imap$zeMap_dots     + 
+                        MapGroup$zeMap_dots + 
+                        MapGroup$zeMap_text +
+                      GraphElli + label4Map +
+  ggtitle('BADA: Group Centers with CI and Observations')
+#_________________________________________________
+# plot it!
+#dev.new()
+print(a004.bada.withCI)
+```
+
+
+Here we see that Masters degree is different from doctoral degree, secondary school,
+and currently a primary school student. Secondary school, likewise, is different 
+from doctoral degree, masters degree, and currently a primary school student. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# create the I-map with Observations, 
+# means and confidence intervals
+#
+a004.bada.withCI <-  Imap$zeMap_background  + 
+                       
+                        MapGroup$zeMap_text +
+                      GraphElli + label4Map +
+  ggtitle('BADA: Group Centers with CI and Observations')
+#_________________________________________________
+# plot it!
+#dev.new()
+print(a004.bada.withCI)
+```
+
+
+The tolerance intervals shows the the spread of 95% of doctoral degree observations 
+overlap with the groups near the center of gravity as does the spread of 95% of 
+currently a primary school student. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+# with Hull ----
+Ymat3 = as.factor(Ymat)
+Fii <- resBADA$TExPosition.Data$fii
+
+colnames(Fii) <- paste0('Dimension ', 1:ncol(Fii))
+
+# getting the color correct: an ugly trick
+col4Hull <- col4Means[match(names(col4Means), 
+                     levels(Ymat3) )]
+
+#is.data.frame(Ymat)
+
+#dim(Ymat3)
+#dim(Fii)
+
+GraphHull <- PTCA4CATA::MakeToleranceIntervals(
+                      Fii,
+                      design = Ymat3,
+                      col = col4Hull,
+                # the next line is required 
+                # for some strange unknown reasons
+          names.of.factors =  c("Dim1","Dim2"),
+          p.level = .66)
+
+
+
+#
+a006.bada.withHull <-  (Imap$zeMap_background  + 
+                          Imap$zeMap_dots     + 
+                          MapGroup$zeMap_dots + 
+                          MapGroup$zeMap_text +
+                          GraphHull           + 
+                          label4Map           +
+    ggtitle('BADA: Group Centers with Hulls and Observations'))
+a006.bada.withHull
+```
+
+
+The loading show that doctoral students tend to like Opera, Folk, Latino, Metal, 
+and Alternative while currently a primary student individual prefer Swing, Punk, 
+Hiphop, and Country. 
+
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+# J-set ----
+# gt colors
+col4X <- prettyGraphsColorSelection(
+                   n.colors = ncol(descriptors),
+                   starting.color = 42)
+
+col4Y <- prettyGraphsColorSelection(
+                    n.colors = ncol(Xmat),
+                    starting.color = 13)
+col4Var = c(col4X,col4Y)
+
+#_________________________________________________
+Fj <- resBADA$TExPosition.Data$fj
+baseMap.j <- PTCA4CATA::createFactorMap(
+                        Fj,
+                        col.points   = col4Var,
+                        alpha.points =  .3,
+                        col.labels   = col4Var)
+
+#_________________________________________________
+# arrows
+zeArrows <- addArrows(Fj, color = col4Var)
+
+# A graph for the J-set
+# A graph for the J-set
+b001.aggMap.j <- baseMap.j$zeMap_background + # background layer
+                      baseMap.j$zeMap_dots + 
+                      baseMap.j$zeMap_text +  # dots & labels
+                      label4Map 
+b002.aggMap.j <- b001.aggMap.j + zeArrows
+# We print this Map with the following code
+#dev.new()
+print(b002.aggMap.j)
+```
+
+
+The contribution show that Latino, Alternative, Swing, Punk, Hiphop, and Country 
+are important contributors to the first two dimensions while the bootstrap ratios
+show that Latino, Alternative, Swing, Hiphop, and Country and stable variables. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#_________________________________________________
+#  Contributions ####
+#_________________________________________________
+#_________________________________________________
+# Ctr J-set 
+###### 1 ====
+# 
+ctrj <- resBADA$TExPosition.Data$cj
+signed.ctrj <- ctrj * sign(Fj)
+# BR1
+c001.plotCtrj.1 <- PrettyBarPlot2(
+           bootratio = round(100*signed.ctrj[,1]), 
+           threshold = 100 / nrow(signed.ctrj), 
+           ylim = NULL,
+           signifOnly = TRUE,
+           color4bar = gplots::col2hex(col4Var),
+           color4ns = "gray75", 
+           plotnames = TRUE, 
+    main = 'Important Contributions Variables. Dim 1.', 
+           ylab = "Signed Contributions")
+#dev.new()
+print(c001.plotCtrj.1)
+#_________________________________________________
+###### 2 ====
+# 
+c002.plotCtrj.2 <- PrettyBarPlot2(
+  bootratio = round(100*signed.ctrj[,2]), 
+  threshold = 100 / nrow(signed.ctrj), 
+  ylim = NULL, 
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Var),
+  color4ns = "gray75", 
+  plotnames = TRUE, 
+  main = 'Important Contributions Variables. Dim 2.', 
+  ylab = "Signed Contributions")
+#dev.new()
+print(c002.plotCtrj.2)
+#_________________________________________________
+#_________________________________________________
+#  Bootstrap ratios ####
+#_________________________________________________
+#_________________________________________________
+#BR. 1 ====
+# 
+BRj <- resBADA.inf$Inference.Data$boot.data$fj.boot.data$tests$boot.ratios
+# BR1
+d001.plotBRj.1 <- PrettyBarPlot2(
+  bootratio = BRj[,1], 
+  threshold = 2, 
+  ylim = c(-1,4), 
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Var),
+  color4ns = "gray75", 
+  plotnames = TRUE, 
+  main = 'Bootstrap Ratios Variables. Dim 1.', 
+  ylab = "Bootstrap Ratios")
+#dev.new()
+print(d001.plotBRj.1)
+#_________________________________________________
+###### 2 ====
+# 
+d003.plotBRj.2 <- PrettyBarPlot2(
+  bootratio = BRj[,2], 
+  threshold = 2, 
+  ylim = c(-3,1), 
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Var),
+  color4ns = "gray75", 
+  plotnames = TRUE, 
+  main = 'Bootstrap Ratios Variables. Dim 2.', 
+  ylab = "Bootstrap Ratios")
+#dev.new()
+print(d003.plotBRj.2)
+
+```
+
+## Fixed Confusion Matrix
+
+
+According to chance, their is a 0.1667 or 16.67% likelihood to discriminant to 
+the barycenter groups. The fixed confusion matrix predicted at a accuracy of 0.20,
+which is more than by change. Thus, the level of education is a modest benchmark to
+classify music preference. The horizontal titles are the actual numbers while the 
+vertical titles are the predicted numbers. The diagonal from the upper left to 
+the bottom right represents the hits while the other values represent the misses. 
+
+```{r}
+fixed_cm <-resBADA.inf$Inference.Data$loo.data$fixed.confuse
+
+head(fixed_cm) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+
+resBADA.inf$Inference.Data$loo.data$fixed.acc
+
+                            
+                          
+```
+
+## Random Confusion Matrix
+
+
+The Random Confusion Matrix only predicted by 0.1664, which under-performed compared
+to the liklihood by chance alone. The Random Confusion Matrix is a method to 
+mimic training and testing dat sets. It utilizes Jackknife whereby one observation is
+left out, and a permutation test is run. The BADA is performed on the Leave One Out
+Data Set and the left out data point is used to minimize the distance to barycenter. 
+Thus, random confusion matrices are a way of validating the fixed confusion matrix
+through Jackknife and permutation testing. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+random_cm <- resBADA.inf$Inference.Data$loo.data$loo.confuse
+
+head(random_cm) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+
+resBADA.inf$Inference.Data$loo.data$loo.acc
+
+```
+
+## Summary
+
+The Scree Plot shows that the first three dimension are important. The main take away from the confidence intervals plot is that currently a primary school student and doctoral student are different from each other and all other groups. However, the random confusion matrix showed a poor accuracy in the prediction strength of the BADA algorithm. 

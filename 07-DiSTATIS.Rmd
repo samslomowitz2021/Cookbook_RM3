@@ -1,0 +1,443 @@
+
+# DISTATIS {#distatis}
+
+This method combines Multi-Dimensional Scaling and STATIS. The STATIS step follows
+the MDS step and is an optimization step. Thus, optimum weights are added to the 
+data table. Further, the sqaure of Eucledian distances are used to group variable
+for each matrix. DiSTATIS is specifically a I x I x K matrix where I are objects
+and K are people. 
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+rm(list = ls())
+graphics.off()
+gc()
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#devtools::install_github('HerveAbdi/PTCA4CATA')
+#devtools::install_github('HerveAbdi/R4SPISE2018')
+#devtools::install_github("HerveAbdi/R4SPISE2018" 
+        #, dependencies = TRUE, 
+    # use it first time only, comment after
+    #build_opts = c("--no-resave-data", 
+    # "--no-manual"), # Explicitly get the option
+    #build_vignettes = TRUE,
+    #force = TRUE)
+#devtools::install_github('HerveAbdi/DistatisR')
+#devtools::install_github('HerveAbdi/data4PCCAR')
+#install.packages("prettyGraphs")
+#install.packages('Matrix')
+#install.packages('factoextra')
+#install.packages('ExPosition')
+#install.packages("DistatisR")
+suppressMessages(library(Matrix))
+suppressMessages(library(factoextra))
+suppressMessages(library(RColorBrewer))
+suppressMessages(library(DistatisR))
+suppressMessages(library(PTCA4CATA))
+suppressMessages(library(prettyGraphs))
+suppressMessages(library(ExPosition))
+library(R4SPISE2018)
+suppressMessages(library(data4PCCAR))
+library(knitr)
+library(kableExtra)
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#Loading the data
+wine = read.csv("Data/wine.csv")
+
+data_2=wine[,-1]
+rownames(data_2)=wine[,1]
+
+data_3 = data.frame(data_2)
+
+data_4 = t(data_3)
+
+data_5 = data_3[-15,]
+
+
+nVarJudges  <- ncol(data_4)
+
+k <- 15
+
+descJudges <- data_4[,k ]
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+## ----colJudges----------------------------------
+# Create a 0/1 group matrix 
+# with ExPosition::makeNominalData()
+nominal.Judges <- makeNominalData(
+                       as.data.frame(descJudges))
+# get the colors
+color4Judges.list <- 
+    prettyGraphs::createColorVectorsByDesign(
+                  nominal.Judges)
+
+# color4Judges.list
+color4Judges.list$oc <- descJudges
+
+col4FI <- "red"
+col4FnoI = "pink"
+col4SAI = "black"
+col4SAnoI<- 'blue'
+color4Judges.list$oc[
+       color4Judges.list$oc == 'Fr Info'] <- col4FI
+color4Judges.list$oc[
+       color4Judges.list$oc == 'Fr No Info'] <- col4FnoI
+color4Judges.list$oc[
+       color4Judges.list$oc == 'SA Info'] <- col4SAI
+color4Judges.list$oc[
+       color4Judges.list$oc == 'SA No Info'] <- col4SAnoI
+color4Judges.list$gc[1,1] <- col4FI
+color4Judges.list$gc[2,1] <- col4FnoI
+color4Judges.list$gc[3,1] <- col4SAI
+color4Judges.list$gc[4,1] <- col4SAnoI
+
+
+DistanceCube <- DistanceFromSort(data_5)
+```
+
+```{r}
+head(DistanceCube) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
+
+## Analysis 
+
+
+```{r}
+# **** Computations ----
+## runDistatis--------------------------------
+resDistatis <- distatis(DistanceCube, 
+                        nfact2keep = 10)
+
+n.active <- dim(DistanceCube)[3]
+
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## rvGroups-----------------------------------
+# Get the factors from the Cmat analysis
+G <- resDistatis$res4Cmat$G 
+
+# Compute the mean by groups of Judges
+JudgesMeans.tmp <- aggregate(G, 
+                      list(descJudges), mean) 
+JudgesMeans <- JudgesMeans.tmp[,2:ncol(
+                             JudgesMeans.tmp )] 
+rownames(JudgesMeans) <- JudgesMeans.tmp[,1]
+# Get the bootstrap estimates
+BootCube <- PTCA4CATA::Boot4Mean(G, 
+                       design = descJudges,
+                       niter = 100,
+                       suppressProgressBar = TRUE)
+# head(BootCube)
+# ## ----computeSk/ Fk ---------------------------
+# Use Distatis1.1.0 function computePartial4Groups
+groupK <- computePartial4Groups(
+   resDistatis = resDistatis,
+   DESIGN = descJudges
+)
+alpha_k <- groupK $groupAlpha
+F_k     <- groupK $groupFS
+```
+
+## Graphs
+
+The Rv coefficient is a correlation coefficient for covariance matrices.
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#**** Graphs ----
+# ...  Rv Graphs ----
+## Rv Corplot ----
+# Note that the assessors have been re-ordered
+# according to their projection on Dimension 1.
+plot <- corrplot::corrplot(resDistatis$res4Cmat$C, 
+                  # title = "The RV Map",
+   order = 'FPC', # order from the first PC
+   method = "color",
+   col = RColorBrewer::brewer.pal(n = 8, 
+                                  name = "PuOr"),
+   number.cex = 0.8, 
+   tl.col = color4Judges.list$oc,
+   mar = c(0,0,0,0),
+   addgrid.col = "grey", 
+   tl.srt = 50)
+```
+
+
+The Rv Graph shows that French Judges with Information are likely to judge
+similarly to other French Judges with Information as are South African 
+judges and other South African judges. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+## ----RV.scree.MapPlain -------
+# 5.A. A scree plot for the RV coef. 
+# Using standard plot (PTCA4CATA)
+scree.rv.out <- PlotScree(
+          ev = resDistatis$res4Cmat$eigValues, 
+          title = "RV-map: Scree")
+
+## ----RVGplot------------------------------------
+# Create the layers of the map
+RV.constraints <- minmaxHelper(
+               resDistatis$res4Cmat$G[,1:2])
+gg.rv.graph.out <- createFactorMap(
+             X = resDistatis$res4Cmat$G, 
+             axis1 = 1, axis2 = 2, 
+             title = "Judges: RVMap", 
+             col.points = color4Judges.list$oc, 
+             col.labels = color4Judges.list$oc,
+             constraints = RV.constraints)
+# create the labels 
+# for the dimensions of the RV map
+labels4RV <- createxyLabels.gen(
+        lambda = resDistatis$res4Cmat$eigValues, 
+        tau    = resDistatis$res4Cmat$tau,
+        axisName = "Dimension ")
+## Create the map from the layers
+# Here with labels and dots
+a2a.gg.RVmap <- gg.rv.graph.out$zeMap + labels4RV
+# Here with colored dots only
+a2b.gg.RVmap <- gg.rv.graph.out$zeMap_background +
+                gg.rv.graph.out$zeMap_dots + 
+                labels4RV
+a2a.gg.RVmap 
+a2b.gg.RVmap
+```
+
+Judges, surprisingly, do not separate along the second dimension with respect
+to nationality. 
+
+```{r}
+## ----RVwithCI-----------------------------------
+# First the means
+# A tweak for colors
+in.tmp    <- sort(rownames(color4Judges.list$gc), 
+                        index.return = TRUE)$ix
+col4Group <- color4Judges.list$gc[in.tmp]
+#
+gg.rv.means <- PTCA4CATA::createFactorMap(
+        JudgesMeans,
+        axis1 = 1, axis2 = 2, 
+        constraints = gg.rv.graph.out$constraints,
+        col.points =  col4Group ,
+        alpha.points = 1, # no transparency
+        col.labels = col4Group)
+#
+ dimnames(BootCube$BootCube)[[2]] <- 
+     paste0('dim ',1: dim(BootCube$BootCube)[[2]])
+  #c('Dim1','Dim2') 
+GraphElli.rv <- MakeCIEllipses(
+        BootCube$BootCube[,1:2,],
+        names.of.factors = c("dim 1","dim 2"), 
+        col = col4Group, 
+        p.level = .95)
+a2d.gg.RVMap.CI <- a2b.gg.RVmap +
+                  gg.rv.means$zeMap_dots + 
+                  GraphElli.rv 
+# dev.new()
+print(a2d.gg.RVMap.CI)
+## ----meansRV------------------------------------
+#knitr::kable(JudgesMeans[,1:3])
+## ----mapa2d -----------------
+#print(a2d.gg.RVMap.CI )
+```
+
+The confidence intervals overlap so groups are not distinct. 
+
+
+```{r}
+##  HCA
+##   Hierarchical Clustering Analysis (HCA)
+ D <- dist(resDistatis$res4Cmat$G,
+               method = "euclidean")
+ fit <- hclust(D, method = "ward.D2")
+ a05.tree4participants <- fviz_dend(fit,  
+     k = 1, 
+     k_colors = 'burlywood4', 
+     label_cols = color4Judges.list$oc[fit$order],
+     cex = .7, xlab = 'Participants',
+     main = 'Cluster Analysis: Participants') 
+
+## ---- plothca --------------------
+print(a05.tree4participants)
+```
+
+
+No apparent pattern emerges from the Hierarchnical Clustering Analysis. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+ # ... S graphs ----
+# S corplot ----
+ #-________________________________________________
+## CorrMat 4  Products  ----
+ # Create color for the Products from prettyGraph
+ color4Products <- #  
+   prettyGraphsColorSelection(n.colors = 
+                nrow(resDistatis$res4Splus$F))
+ plot <- corrplot::corrplot(
+   resDistatis$res4Splus$Splus, 
+   #title = "The S Map",
+   order = 'original', # original order
+   method = "color",
+   col = brewer.pal(n = 8, name = "PRGn"),
+   number.cex = 0.8, 
+   tl.col = color4Products,
+   mar = c(0,0,0,0),
+   addgrid.col = "grey", 
+   tl.srt = 50)
+
+# Reordered from HCA
+ plot <- corrplot::corrplot(
+   resDistatis$res4Splus$Splus, 
+   #title = "The S Map",
+   order = 'hclust', # order from a HCA
+   method = "color",
+   col = brewer.pal(n = 8, name = "PRGn"),
+   number.cex = 0.8, 
+   tl.col = color4Products,
+   mar = c(0,0,0,0),
+   addgrid.col = "grey", 
+   tl.srt = 50)
+```
+
+FBAU and FCLL form a cluster of similarity as do SBEA, FCAR, and FROC as well as
+FCLP and FROU. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+ ## ---- scree4S --------------------
+ #_________________________________________________
+ # A scree plot for the Compromise.
+ scree.S.out <- PlotScree(
+   ev = resDistatis$res4Splus$eigValues, 
+   title = "Compromise: Explained Variance per Dimension")
+```
+
+
+```{r, include = FALSE, echo=FALSE, warning=FALSE,message=FALSE}
+## ----createGr4S -----
+# 4.1 Get the bootstrap factor scores 
+ #    (with default 1000 iterations)
+BootF <- BootFactorScores(
+                resDistatis$res4Splus$PartialF)
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# 5.2 a compromise plot
+# General title for the compromise factor plots:
+genTitle4Compromise = 'Compromise.'
+# To get graphs with axes 1 and 2:
+h_axis = 1
+v_axis = 2
+# To get graphs with say 2 and 3 
+# change the values of v_axis and h_axis
+gg.compromise.graph.out <- createFactorMap(
+                resDistatis$res4Splus$F,
+                axis1 = h_axis, 
+                axis2 = v_axis,
+                title = genTitle4Compromise,
+                col.points = color4Products ,
+                col.labels = color4Products) 
+# NB for the lines below 
+#  You need DISTATIS version > 1.0.0
+#  to get the eigen values 
+#   and tau for the compromise
+label4S <- createxyLabels.gen(
+      x_axis   = h_axis, y_axis = v_axis,
+      lambda   = resDistatis$res4Splus$eigValues, 
+      tau      = resDistatis$res4Splus$tau,
+      axisName = "Dimension ")
+b2.gg.Smap <-  gg.compromise.graph.out$zeMap + 
+                   label4S 
+# dev.new()
+print(b2.gg.Smap)
+```
+
+
+FROC, FCAR, SBEA, and SKLE form a distinct cluster along dimension 1 while
+SRAA, FBAU, and SFED form a distinct cluster slong dimension 2. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+#  
+# 5.4 a bootstrap confidence interval plot 
+# 5.3  create the ellipses
+## With Ellipses -----
+gg.boot.graph.out.elli <- MakeCIEllipses(
+           data = BootF[,c(h_axis,v_axis),],
+           names.of.factors = 
+                c(paste0('Factor ',h_axis),
+                  paste0('Factor ',v_axis)),
+           col = color4Products,
+)  
+# Add ellipses to compromise graph
+b3.gg.map.elli <- gg.compromise.graph.out$zeMap +
+                  gg.boot.graph.out.elli + label4S 
+#
+## ----plot with ellipse -----------
+print(b3.gg.map.elli)
+```
+
+
+```{r}
+##  HCA products ------
+nFac4Prod = 5
+D4Prod <- dist(
+           resDistatis$res4Splus$F[,1:nFac4Prod],
+           method = "euclidean")
+ fit4Prod <- hclust(D4Prod, method = "ward.D2")
+ b3.tree4Product <- fviz_dend(fit4Prod,  k = 1, 
+       k_colors = 'burlywood4', 
+      label_cols = color4Products[fit4Prod$order],
+       cex = .7, xlab = 'Products',
+       main = 'Cluster Analysis: Products') 
+
+## ----plot hca Prod ---------------------
+ print(b3.tree4Product)
+```
+
+There seems like four major clusters with the first (SRAA, FBAU, and SFED)
+and fourth (FROC, FCAR, SBEA, and SKLE) corresponding well with the projections 
+along dimensions 1 and 2 seen earlier. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----PartialFS----------------------------------
+# get the partial map
+
+map4PFS <- createPartialFactorScoresMap(
+         factorScores = resDistatis$res4Splus$F,      
+         partialFactorScores = F_k,  
+         axis1 = 1, axis2 = 2,
+         colors4Blocks = color4Judges.list$gc, 
+         colors4Items = as.vector(color4Products), 
+         names4Partial = dimnames(F_k)[[3]], # 
+         font.labels = 'bold')
+# partial maps
+d1.partialFS.map.byProducts <- 
+          gg.compromise.graph.out$zeMap + 
+          map4PFS$mapColByItems + label4S 
+d2.partialFS.map.byCategories  <- 
+          gg.compromise.graph.out$zeMap + 
+          map4PFS$mapColByBlocks + label4S 
+
+## ----S with Categories -----
+print(d1.partialFS.map.byProducts )
+## ----S with Categories.2 -----
+print(d2.partialFS.map.byCategories)
+```
+
+### Summary
+
+Two central cluster were seen in the analysis with the first (SRAA, FBAU, and SFED)
+being seen along the first dimension and the fourth (FROC, FCAR, SBEA, and SKLE) 
+be seen along the second dimension. 
+
+

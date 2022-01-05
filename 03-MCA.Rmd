@@ -1,0 +1,852 @@
+
+# Multiple Correspondence Analysis {#mca}
+
+This method is an extension of PCA but analyzes categorical data instead. 
+In some respects it is analogous to CA but uses binary data instead. MCA can 
+also be adapted to quantitative data that is scored, for example, -5 to 5 and 
+then binned to represent a pattern of 0 and 1 data entries. 
+
+
+```{r, include = FALSE, echo=FALSE}
+graphics.off()
+rm(list = ls())
+gc()
+
+# Install packages ----
+#install.packages("devtools")
+#devtools::install_github('HerveAbdi/PTCA4CATA')
+#devtools::install_github('HerveAbdi/DistatisR')
+#devtools::install_github('HerveAbdi/data4PCCAR')
+#devtools::install_github('HerveAbdi/R4SPISE2018') # of course!
+#install.packages('prettyGraphs')
+#install.packages('Matrix')
+#install.packages('dplyr')
+#install.packages('gridExtra')
+#install.packages('grid')
+#install.packages('gtable')
+#install.packages('stringi')
+#install.packages('printr')
+#install.packages('kableExtra')
+#  load the libraries that we will need
+suppressMessages(library(Matrix))
+suppressMessages(library(prettyGraphs))
+suppressMessages(library(ExPosition))
+suppressMessages(library(InPosition))
+suppressMessages(library(DistatisR))
+suppressMessages(library(dplyr))
+suppressMessages(library(gridExtra))    # to save a table as a graph
+suppressMessages(library(grid))         # that will be saved in the
+suppressMessages(library(gtable))       # powerpoint with the figures
+suppressMessages(library(printr))     # To pretty print tables 
+suppressMessages(library(kableExtra)) # To pretty print tables
+# If not installed here it is
+#remotes::install_github('HerveAbdi/DistatisR')
+suppressMessages(library(DistatisR))
+suppressMessages(library(PTCA4CATA))
+suppressMessages(library(data4PCCAR))
+
+
+# Load data
+music = read.csv("data/music5.csv")
+# How to put
+data_2=music[,-1]
+rownames(data_2)=music[,1]
+# How to change to a data frame and remove rows with missing variables
+
+data_3 = data.frame(data_2)
+data_4 = na.omit(data_3)
+
+# Transform the data into factors
+rawData <- apply(data_3,2,as.factor)
+
+rawData <- as.data.frame(rawData, stringsAsFactors = TRUE)
+
+```
+
+## Cleaning the data
+
+
+```{r, echo=FALSE}
+rawData2 = data.frame(data_4)
+
+rawData2$Age <- as.numeric(as.character(rawData2$Age))
+colnames(rawData2) <- c('supVar','Music','Fast','Dance', 'Folk','Country','Classical','Musical',
+                        'Pop','Rock','Metal','Punk','Hiphop','Reg','Swing','RnR','Alt',
+                        'Lat','TT','Opera','Age','Gender','City','Ed')
+
+# How to prepare data for analysis with histogram
+
+rawData2[,2:21] <- lapply(rawData2[,2:21], as.numeric)
+```
+
+This is the same data from PCA, containing Music preferences. I cleaned the 
+data by binned the data in to roughly equal groups. For example, for the question 
+of Music preferences, I binned the first 4 scores into one group and left the 
+score of 5 in its own group. There are 918 survey participants and 20 variables, 
+including Gender. 
+
+
+```{r}
+
+hist.Mu <- hist(rawData2[,2], breaks = 20) # 1 to 4 and 5
+
+```
+
+
+```{r, echo=FALSE}
+# how to equalize the data through visualization with a histogram
+
+#hist.Mu <- hist(rawData2[,2], breaks = 20) # 1 to 4 and 5
+#hist.Fa <- hist(rawData2[,3], breaks = 20) # 1 to 2, 3, and 4 to 5
+#hist.D <- hist(rawData2[,4], breaks = 20) # 1 to 2, 3, and 4 to 5
+#hist.Fo <- hist(rawData2[,5], breaks = 20) # 1, 2, and 3 to 5
+#hist.Co <- hist(rawData2[,6], breaks = 20) # 1, 2, and 3 to 5
+#hist.Cl <- hist(rawData2[,7], breaks = 20) # 1, 2, 3, 4, 5
+#hist.Ml <- hist(rawData2[,8], breaks = 20) # 1, 2, 3, 4 to 5
+#hist.Po <- hist(rawData2[,9], breaks = 20) # 1 to 2, 3, 4, 5
+#hist.Ro <- hist(rawData2[,10], breaks = 20) # 1 to 3, 4, 5
+#hist.Me <- hist(rawData2[,11], breaks = 20) # 1, 2, 3 to 5
+#hist.Pu <- hist(rawData2[,12], breaks = 20) # 1, 2, 3, 4 to 5
+#hist.H <- hist(rawData2[,13], breaks = 20) # 1, 2, 3, 4, 5
+#hist.Re <- hist(rawData2[,14], breaks = 20) # 1, 2, 3, 4 to 5
+#hist.Sw <- hist(rawData2[,15], breaks = 20) # 1, 2, 3, 4 to 5
+#hist.RnR <- hist(rawData2[,16], breaks = 20) # 1 to 2, 3, 4, 5
+#hist.A <- hist(rawData2[,17], breaks = 20) # 1, 2, 3, 4, 5
+#hist.L <- hist(rawData2[,18], breaks = 20) # 1, 2, 3, 4, 5
+#hist.T <- hist(rawData2[,19], breaks = 20) # 1, 2, 3 to 5
+#hist.O <- hist(rawData2[,20], breaks = 20) # 1, 2, 3 to 5
+#hist.A <- hist(rawData2[,21], breaks = 20) #<20 Y, >20 O
+```
+
+## Recoding the data
+```{r, echo=FALSE}
+## ----recode Age etc. -------------------------------------
+rawData2[,'Music'] <- plyr::mapvalues(rawData2[,'Music'], 
+                                   from = c("1", "2","3","4", "5"), to = c("1","1","1","1", "2"))
+rawData2[,'Fast'] <- plyr::mapvalues(rawData2[,'Fast'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "3"))
+rawData2[,'Dance'] <- plyr::mapvalues(rawData2[,'Dance'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "3"))
+rawData2[,'Folk'] <- plyr::mapvalues(rawData2[,'Folk'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData2[,'Country'] <- plyr::mapvalues(rawData2[,'Country'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData2[,'Classical'] <- plyr::mapvalues(rawData2[,'Classical'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData2[,'Musical'] <- plyr::mapvalues(rawData2[,'Musical'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData2[,'Pop'] <- plyr::mapvalues(rawData2[,'Pop'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "4"))
+rawData2[,'Rock'] <- plyr::mapvalues(rawData2[,'Rock'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","1","2", "3"))
+rawData2[,'Metal'] <- plyr::mapvalues(rawData2[,'Metal'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData2[,'Punk'] <- plyr::mapvalues(rawData2[,'Punk'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData2[,'Hiphop'] <- plyr::mapvalues(rawData2[,'Hiphop'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData2[,'Reg'] <- plyr::mapvalues(rawData2[,'Reg'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData2[,'Swing'] <- plyr::mapvalues(rawData2[,'Swing'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "4"))
+rawData2[,'RnR'] <- plyr::mapvalues(rawData2[,'RnR'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","1","2","3", "4"))
+rawData2[,'Alt'] <- plyr::mapvalues(rawData2[,'Alt'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData2[,'Lat'] <- plyr::mapvalues(rawData2[,'Lat'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","4", "5"))
+rawData2[,'TT'] <- plyr::mapvalues(rawData2[,'TT'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData2[,'Opera'] <- plyr::mapvalues(rawData2[,'Opera'], 
+                                      from = c("1", "2","3","4", "5"), to = c("1","2","3","3", "3"))
+rawData2[,'Age'] <- plyr::mapvalues(rawData2[,'Age'], 
+                                      from = c("15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"), to = c("Y","Y","Y","Y","Y","Y","Y","Y", "O","O","O","O","O","O","O","O"))
+rawData2[,'Gender'] <- plyr::mapvalues(rawData2[,'Gender'], 
+                                      from = c("male","female"), to = c("M","F"))
+rawData2[,'City'] <- plyr::mapvalues(rawData2[,'City'], 
+                                      from = c("village","city"), to = c("V","C"))
+
+rawData2[,'Ed'] <- plyr::mapvalues(rawData2[,'Ed'], 
+                                      from = c("primary school","secondary school","college/bachelor degree","masters degree","doctorate degree"), to = c("1","2","3","4", "5"))
+
+
+
+rawData3 = data.frame(rawData2)
+rawData4 = rawData3[,-1]
+```
+
+
+```{r}
+head(rawData4) %>%
+  kbl() %>%
+  kable_paper("hover", full_width = F)
+```
+
+```{r, echo=FALSE}
+## ---- cleanData-------------------------------------------
+cleanData.tmp <- rawData4
+
+cleanData.tmp <- cleanData.tmp[complete.cases(cleanData.tmp),]
+
+cleanData.allVar <- cleanData.tmp
+
+cleanData.varSup <- cleanData.allVar[,20:23]
+cleanData        <- cleanData.allVar[,1:19]
+
+
+```
+
+## Analysis
+
+```{r, message = FALSE}
+## ----runMCA-----------------------------------------------
+resMCA <- epMCA(cleanData, graphs = FALSE)
+```
+
+```{r, echo=FALSE}
+
+## ----runMCA.sup-------------------------------------------
+# recode the factors as set of 0/1 variables
+testclean <- makeNominalData(cleanData)
+
+# barycentric code for nation
+#clean.Sup[,(colnames(testclean) %in% 'nation.F')] <- .5
+#clean.Sup[,(colnames(testclean) %in% 'nation.V')] <- .5
+#
+
+```
+
+```{r, echo=FALSE}
+## ----runMCA.varsup----------------------------------------
+#
+resMCA.varSup <- supplementaryCols(
+              SUP.DATA = makeNominalData(cleanData.varSup),
+              res = resMCA)
+colnames(resMCA.varSup$fjj) <- paste0('Dimension ',
+                                1:ncol(resMCA.varSup$fjj))
+```
+
+
+The Scree plot reveals that three dimensions are important based on the permutation testing 
+and the Kaiser line. 
+
+```{r, echo=FALSE}
+## ----Inferences --------
+resMCA.inf <- epMCA.inference.battery(cleanData, 
+                                      graphs = FALSE)
+
+## ----screeMCA.inf  -------------------
+scree.mca <- PlotScree(ev = resMCA$ExPosition.Data$eigs, 
+        p.ev = resMCA.inf$Inference.Data$components$p.vals, 
+        plotKaiser = TRUE,
+        title = "MCA. Explained Variance per Dimension")
+
+```
+
+The heat map is done on a Burt Table, which is a frequency table that is dummy 
+coded for the groups of variables. It it based on disjunctive coding, a type of 
+group coding, where either a variable is coded as a 1 or 0. Rock and Metal have 
+a high positive correlation value as does Rock and Punk as well as Metal and Punk. Dance
+and Dance, Dance and Techno, and Rock and Rock and Roll have high levels of 
+possitive correlation. In addition, Musical and Opera as well as Classical and 
+Opera have notable positive correlation values. 
+
+```{r, echo=FALSE}
+## ----colors------------------------------------------
+cJ <- resMCA$ExPosition.Data$cj
+color4Var <- prettyGraphs::prettyGraphsColorSelection(
+                                          ncol(cleanData))
+
+## ----phi2 ---------------
+# Pseudo Heat Map. Correlation ----
+# We need correlation to compare with PCA
+corrMatBurt.list <- phi2Mat4BurtTable(cleanData)
+col <- colorRampPalette(
+  c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+
+corr4MCA.r <- corrplot::corrplot(
+         as.matrix(corrMatBurt.list$phi2.mat^(1/2)), 
+         method="color", col=col(200),  
+         type="upper", 
+         addCoef.col = "black", # Add coefficient of correlation
+         tl.col = color4Var, 
+         tl.cex = .9,
+         tl.srt = 45, #Text label color and rotation
+         number.cex = .5,
+         diag = TRUE # needed to have the color of variables correct
+         )
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE, results=FALSE}
+## ----ctrVar --------
+varCtr <- data4PCCAR::ctr4Variables(cJ) 
+rownames(color4Var) <- rownames(varCtr)
+
+## ----ctrVar.Tab ---------
+nFact <- min(5, ncol(cJ) - 1)
+#knitr::kable(round( varCtr[,1:nFact]*1000 ) )
+# save table as a graph
+ctrTable <- tableGrob(round(varCtr[,1:nFact]*1000))
+h <- grobHeight(ctrTable)
+w <- grobWidth(ctrTable)
+title <- textGrob("Variable Contributions",
+                 y = unit(0.5,"npc") + 0.92*h, 
+                 # fine tune the position of the title 
+                  just = "centre",
+                  gp = gpar(fontsize = 14))
+TableWithTitle <- gTree(children = gList(ctrTable, title))
+
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ---- grid.draw ----
+# Note: Potential problems with grid.draw(). If it does not plot
+# recordPlot() will fail and the graph will not be saved in the powerpoint
+# and will generate a strange error message
+#grid.draw(TableWithTitle)
+#dev.new()
+
+```
+
+```{r, include = FALSE, echo=FALSE}
+## ----printr ------------
+# As an alternative we print the contributions with a combination
+#of `kable` and `printr` as:
+laTable <- round(varCtr[,1:nFact]*1000)
+# knitr::kable(round(varCtr[,1:nFact]*1000), caption = 'Variable Contributions')
+#    %>%
+#   kable_styling(latex_options = c("striped", "hold_position"), full_width = F) %>%
+#  add_header_above(c(" ", "Dimensions" = nFact))
+```
+
+As referenced in the previous comments, Rock, Metal, Punk, Rock and Roll, 
+Opera, and Classical are important contributors to the first dimension. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----color4Levels ------
+col4Levels <- data4PCCAR::coloringLevels(
+           rownames(resMCA$ExPosition.Data$fj), color4Var)
+col4Labels <- col4Levels$color4Levels
+
+## ----ctrV1-----------------------
+varCtr1 <- varCtr[,1]
+names(varCtr1) <- rownames(varCtr)
+a0005.Var.ctr1  <- PrettyBarPlot2(varCtr1,
+              main = 'Variable Contributions: Dimension 1',
+              ylim = c(-.05, 1.2*max(varCtr1)),
+              font.size = 5,
+              signifOnly = TRUE,
+              threshold = 1 / nrow(varCtr),
+                                color4bar = gplots::col2hex(color4Var)
+)
+print(a0005.Var.ctr1)
+```
+
+Rock, Pop, Dance, and Tech, all of which were reference before, are important 
+contributors to the second dimension. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----ctrV2 -------
+varCtr2 <- varCtr[,2]
+names(varCtr2) <- rownames(varCtr)
+a0006.Var.ctr2  <- PrettyBarPlot2(varCtr2,
+                    main = 'Variable Contributions: Dimension 2',
+                    ylim = c(-.05, 1.2*max(varCtr2)),
+                    threshold = 1 / nrow(varCtr),
+                    font.size = 5,
+                    signifOnly = TRUE,
+                    color4bar = gplots::col2hex(color4Var)
+)
+print(a0006.Var.ctr2)
+```
+
+
+Rock, Metal, Punk, Musical, Classical, and Opera are important contributors to the 
+third dimension. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----ctrV3 -------------
+varCtr3 <- varCtr[,3]
+names(varCtr3) <- rownames(varCtr)
+a0006.Var.ctr3  <- PrettyBarPlot2(varCtr3,
+             main = 'Variable Contributions: Dimension 3',
+             ylim = c(-.05, 1.2*max(varCtr2)),
+             threshold = 1 / nrow(varCtr),
+             font.size = 5,
+             signifOnly = TRUE,
+             color4bar = gplots::col2hex(color4Var)
+)
+print(a0006.Var.ctr3)
+```
+
+
+To read the next graph, the data point near the axis are importantly mostly 
+to that corresponding dimension. Thus, Dance, Techno, and Pop are near the 
+y-axis so they all contribute heavly to the second dimension. Rock, Opera, and 
+Classical are near the x-axis so they all contribute heavly to the first dimension. 
+The farther away from the center of gravity indicates higher variance. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----ctrV12----------------------------------------
+ctrV12 <- PTCA4CATA::createFactorMap(X =  varCtr, 
+                        title = "Variable Contributions", 
+                        col.points = color4Var,
+                        col.labels = color4Var,
+                        alpha.points = 0.5,
+                        cex = 2.5, 
+                        alpha.labels = 1, 
+                        text.cex = 4,
+                        font.face = "plain", 
+                        font.family = "sans")
+
+ctr.labels <- createxyLabels.gen(
+  1,2, lambda = resMCA$ExPosition.Data$eigs,
+  tau = resMCA$ExPosition.Data$t
+)
+a0007.Var.ctr12  <- ctrV12$zeMap  + ctr.labels
+#
+print(a0007.Var.ctr12)
+
+```
+
+In addition to the variables spotted on the heat map, the next graph captures the 
+important variables based on the contribution level by setting a cut of of 1 divided
+by the number of dimension (19) in out case, leaving a benchmark of 0.05263. 
+
+In addition to what was stated before, dimension 1 and 2 include Latino, Swing, and 
+Alternative. Similarly, dimension 2 and 3 capture Hiphop, Latino, and Alternative. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----getCtr12------------------------------
+absCtrVar <- as.matrix(varCtr) %*% 
+                    diag(resMCA$ExPosition.Data$eigs)
+varCtr12  <- (absCtrVar[,1] + absCtrVar[,2]) / 
+                (resMCA$ExPosition.Data$eigs[1] + 
+                resMCA$ExPosition.Data$eigs[2])
+importantVar <- (varCtr12 >=  1 / length(varCtr12))
+col4ImportantVar <- color4Var
+col4NS <- 'gray90' 
+col4ImportantVar[!importantVar] <- col4NS
+
+## ----ctrV12.ns-----------------------------------------------------------
+ctrV12.imp <- PTCA4CATA::createFactorMap(X =  varCtr, 
+             title = "Important Variables: Contributions", 
+             col.points = col4ImportantVar,
+             col.labels = col4ImportantVar,
+             alpha.points = 0.5,
+                        cex = 2.5, 
+                        alpha.labels = 1, 
+                        text.cex = 4,
+                        font.face = "plain", 
+                        font.family = "sans")
+a0008.Var.ctr12.imp  <- ctrV12.imp$zeMap  + ctr.labels
+#
+print(a0008.Var.ctr12.imp)
+
+
+## ----getCtr23------------------------------------------------------------
+#absCtrVar <- as.matrix(varCtr) %*% diag(resMCA$ExPosition.Data$eigs)
+varCtr23  <- (absCtrVar[,3] + absCtrVar[,2]) / 
+   (resMCA$ExPosition.Data$eigs[3] + resMCA$ExPosition.Data$eigs[2])
+importantVar23 <- (varCtr23 >=  1 / length(varCtr23))
+col4ImportantVar23 <- color4Var
+col4NS <- 'gray90' 
+col4ImportantVar23[!importantVar23] <- col4NS
+
+## ----ctrV23.ns-----------------------------------------------------------
+ctrV23.imp <- PTCA4CATA::createFactorMap(X =  varCtr,
+                                         axis1 = 3, axis2 = 2,
+                        title = "Important Variables: Contributions 3 * 2", 
+                        col.points = col4ImportantVar23,
+                        col.labels = col4ImportantVar23,
+                        alpha.points = 0.5,
+                        cex = 2.5, 
+                        alpha.labels = 1, 
+                        text.cex = 4,
+                        font.face = "plain", 
+                        font.family = "sans")
+ctr.labels23 <- createxyLabels.gen(
+  3,2, lambda = resMCA$ExPosition.Data$eigs,
+  tau = resMCA$ExPosition.Data$t
+)
+a0009.Var.ctr23.imp  <- ctrV23.imp$zeMap  + ctr.labels23
+#
+print(a0009.Var.ctr23.imp)
+
+
+## ----BR4var--------------------------------------------------------------
+# Get the pseudo Bootstrap Ratios
+BrLevels <- resMCA.inf$Inference.Data$fj.boots$tests$boot.ratios
+wJ       <- 1 / resMCA.inf$Fixed.Data$ExPosition.Data$W
+nIter    <- 1000
+Br4Variables <- data4PCCAR::BR4varMCA(BrLevels, wJ, nIter) 
+```
+
+The variables identified in the heatmap as being important and confirmed with the 
+contribution plots was all stable, indicated by the bootstrap ratios, expect for
+Rock no being significant in the third dimension. It is called a Psedo Bootstrap 
+Ratio because the variables are binned and are not exact. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----BR41----------------------------------------------------------------
+VarBR1 <- Br4Variables$pseudoBR.pos[,1]
+c0010.Var.br1  <- PrettyBarPlot2(VarBR1,
+    main = 'Variable Pseudo Bootstrap Ratios: Dimension 1',
+   ylim = c(0, 10),
+    threshold = 2,
+    font.size = 5,
+    signifOnly = TRUE,
+     color4bar = gplots::col2hex(color4Var)
+)
+print(c0010.Var.br1)
+
+## ----BR42---------------------
+VarBR2 <- Br4Variables$pseudoBR.pos[,2]
+c0011.Var.br2  <- PrettyBarPlot2(VarBR2,
+   main = 'Variable Pseudo Bootstrap Ratios: Dimension 2',
+   ylim = c(0, 10),
+  threshold = 2,
+  font.size = 5,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(color4Var)
+)
+print(c0011.Var.br2)
+
+## ----BR43------------------ 
+VarBR3 <- Br4Variables$pseudoBR.pos[,3]
+c0012.Var.br3  <- PrettyBarPlot2(VarBR3,
+  main = 'Variable Pseudo Bootstrap Ratios: Dimension 3',
+ ylim = c(0, 10),
+  threshold = 3,
+  font.size = 5,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(color4Var)
+)
+print(c0012.Var.br3)
+
+```
+
+
+Here the binned data is geometrically projected in the first two dimensions. 
+It forms somewhat of an arch with the many of the low-end binned variables, indicating
+low preference and low agreement, being in the third quadrant, and the high-end binned
+variables, indicating high preference and high agreement, being in the first and fourth quadrant. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----createFjMap---------------------------------------------------------
+axis1 = 1
+axis2 = 2
+Fj <- resMCA$ExPosition.Data$fj
+# generate the set of maps
+BaseMap.Fj <- createFactorMap(X = Fj , # J- Factor scores,
+                              axis1 = axis1, axis2 = axis2,
+                              title = 'MCA. Variables', 
+                              col.points = col4Labels, 
+                              cex = 1,
+                              col.labels = col4Labels, 
+                              text.cex = 2.5,
+                              force = 2)
+# add labels
+labels4MCA <- createxyLabels.gen(x_axis = axis1, 
+                                 y_axis = axis2,
+               lambda = resMCA$ExPosition.Data$eigs,
+               tau = resMCA$ExPosition.Data$t)
+# make the maps
+b0002.BaseMap.Fj <- BaseMap.Fj$zeMap + labels4MCA 
+b0003.BaseMapNoDot.Fj  <- BaseMap.Fj$zeMap_background +
+                         BaseMap.Fj$zeMap_text + labels4MCA 
+
+## ----basemap Fj ----
+print(b0002.BaseMap.Fj)
+```
+
+
+Classical, Swing, Alternative, and Rock and Roll are split by the first dimension, 
+which makes sense as the first dimension accounts for 54% of the variance. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----mapJ-grey --------------------
+col4Levels.imp <- data4PCCAR::coloringLevels(rownames(Fj),
+                       col4ImportantVar)
+BaseMap.Fj.imp <- createFactorMap(X = Fj, # Fj
+                  axis1 = axis1, axis2 = axis2,
+                  title = 'MCA. Important Variables', 
+                  col.points = col4Levels.imp$color4Levels, 
+                  cex = 1,
+                  col.labels = col4Levels.imp$color4Levels, 
+                  text.cex = 2.5,
+                  force = 2)
+
+b0010.BaseMap.Fj <- BaseMap.Fj.imp$zeMap + labels4MCA 
+print(b0010.BaseMap.Fj)
+
+```
+
+Latino has an interesting pattern. If you have a high preference for Latino, you
+tend to have a mid-range preference for Alternative, Metal, Opera, and Rock and Roll. 
+If you don't like Latino, you may not like Classical or Swing either. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+## ----adLines--------------------
+lines4J <- addLines4MCA(Fj, 
+                  col4Var = col4Levels.imp$color4Variables, 
+                  size = .7)
+ b0020.BaseMap.Fj <-  b0010.BaseMap.Fj + lines4J
+ print( b0020.BaseMap.Fj)
+ 
+```
+
+ 
+```{r,echo=FALSE, warning=FALSE,message=FALSE}
+
+## ----someLines -------------------------
+zeNames          <- getVarNames(rownames(Fj)) 
+importantsLabels <- zeNames$stripedNames %in% zeNames$variableNames[importantVar]
+Fj.imp <- Fj[importantsLabels,]
+lines4J.imp <- addLines4MCA(Fj.imp, 
+            col4Var = col4Levels$color4Variables[which(importantVar)], 
+            size = .9, linetype = 3, alpha = .5)
+ b0021.BaseMap.Fj <-  b0020.BaseMap.Fj + lines4J.imp
+ #print( b0021.BaseMap.Fj)
+```
+
+
+Latino has a similar pattern when projected in the second and third dimension, 
+interacting with many other important contributors to these dimensions. It is mainly
+separated by the third dimension, which compliments earlier analysis. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----mapJ23-grey-----------------------
+col4Levels23.imp <- data4PCCAR::coloringLevels(rownames(Fj),
+                                     col4ImportantVar23)
+axis3 = 3
+BaseMap.Fj23.imp <- createFactorMap(X = Fj , # resMCA$ExPosition.Data$fj,
+                              axis1 = axis3, axis2 = axis2,
+                              title = 'MCA. Important Variables. Dimensions 2 & 3',
+                      col.points = col4Levels23.imp$color4Levels, 
+                              cex = 1,
+                      col.labels = col4Levels23.imp$color4Levels, 
+                              text.cex = 2.5,
+                              force = 2)
+labels4MCA23 <- createxyLabels.gen(x_axis = 3, y_axis = 2,
+               lambda = resMCA$ExPosition.Data$eigs,
+               tau = resMCA$ExPosition.Data$t) 
+b0030.BaseMap.Fj23 <- BaseMap.Fj23.imp$zeMap + labels4MCA23 
+
+# zeNames          <- getVarNames(rownames(Fj)) 
+importantsLabels23 <- zeNames$stripedNames %in% zeNames$variableNames[importantVar23]
+Fj23.imp <- Fj[importantsLabels23,]
+lines4J23.imp <- addLines4MCA(Fj23.imp, 
+                    col4Var = col4Levels$color4Variables[
+                               which(importantVar23)],
+                    axis_h = axis3,
+                    axis_v = axis2,
+                    size = .9, linetype = 3, alpha = .5)
+ b0031.BaseMap.Fj23 <-  b0030.BaseMap.Fj23 + lines4J23.imp
+ print( b0031.BaseMap.Fj23)
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----mapvarSup---------------
+col4VarSup <- prettyGraphs::prettyGraphsColorSelection(
+                                  ncol(cleanData.varSup))
+Fj.sup <- resMCA.varSup$fjj
+col4Levels.sup <- data4PCCAR::coloringLevels(
+                      rownames(Fj.sup), col4VarSup)
+BaseMap.Fj.sup <- createFactorMap(X = Fj.sup , # 
+                axis1 = axis1, axis2 = axis2,
+                constraints  = BaseMap.Fj$constraints, 
+                # to get same size
+      title = 'MCA. Supplementary and Important Variables', 
+                col.points = col4Levels.sup$color4Levels, 
+                              cex = 1,
+                col.labels = col4Levels.sup$color4Levels, 
+                text.cex = 2.5,
+                force = 2)
+lines4J.sup <- addLines4MCA(Fj.sup, 
+                  col4Var = col4Levels.sup$color4Variables,
+                  size = .7)
+b0030.Sup.Fj <- BaseMap.Fj.sup$zeMap + 
+                     BaseMap.Fj.imp$zeMap_dots + 
+                     BaseMap.Fj.imp$zeMap_text +
+                     labels4MCA + 
+                     lines4J + lines4J.sup
+#print(b0030.Sup.Fj)
+```
+
+The Bootstrap ratio can be sub-categorized for each binned variables. For example, 
+Latino was binned from 1 to 5 with 5 being a high preference for Latino music. The 
+bootstrap ratio for Latino 1, Latino 2, etc. can be computed. The analysis for the binned 
+variables being geometrically projected across the first three dimension correspond 
+with stable binned variables in the pseduo-bootstrap ratios. 
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----mapvarSup.only------------------------------------------------------
+b0031.Sup.Fj.only <- BaseMap.Fj.sup$zeMap + 
+                     BaseMap.Fj.imp$zeMap_dots + 
+                     labels4MCA + 
+                      lines4J.sup
+#print(b0031.Sup.Fj.only)
+
+## ----BR1-----------------------------------------------------------------
+
+c0001.Levels.BR  <- PrettyBarPlot2(
+  resMCA.inf$Inference.Data$fj.boots$tests$boot.ratios[,1], # BR
+  main = 'Bootstrap Ratios for Columns : Dimension 1',
+                             threshold = 2,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Labels)
+)
+print(c0001.Levels.BR)
+
+c0001.Levels.BR  <- PrettyBarPlot2(
+  resMCA.inf$Inference.Data$fj.boots$tests$boot.ratios[,2], # BR
+  main = 'Bootstrap Ratios for Columns : Dimension 2',
+                             threshold = 2,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Labels)
+)
+print(c0001.Levels.BR)
+
+c0001.Levels.BR  <- PrettyBarPlot2(
+  resMCA.inf$Inference.Data$fj.boots$tests$boot.ratios[,3], # BR
+  main = 'Bootstrap Ratios for Columns : Dimension 3',
+                             threshold = 2,
+  signifOnly = TRUE,
+  color4bar = gplots::col2hex(col4Labels)
+)
+print(c0001.Levels.BR)
+```
+
+If we look at the distribution color with gender, it is heterogeneous with blue 
+(males) forming an umbrella shape and being lower than the pink (females).
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+## ----createFiMap -----------------
+Fi <- resMCA$ExPosition.Data$fi
+colCity <- c('deeppink', 'blue')
+nI <- nrow(Fi)
+col4I.City <- rep("",nI)
+
+for (i in 1:length(colCity) ){
+  lindex <- cleanData.allVar[,'Gender'] %in% unique(cleanData.allVar[,'Gender'])[i]
+  col4I.City[lindex] <- colCity[i]
+}
+
+
+# generate the set of maps
+BaseMap.Fi <- createFactorMap(X = Fi , # resMCA$ExPosition.Data$fj,
+                        axis1 = axis1, axis2 = axis2,
+                        title = 'MCA. Observations (by Gender)', 
+                        col.points = col4I.City,
+                        alpha.points = .4, cex = .9,
+                        col.labels = col4I.City,
+                        text.cex = 2.5, 
+                        force = 2)
+# make the maps
+d0001.BaseMapNoLabels.Fi  <- BaseMap.Fi$zeMap_background +
+                                 BaseMap.Fi$zeMap_dots + 
+                                 labels4MCA 
+
+## ----plotaMapi, fig.width= 8---------------------------------------------
+print(d0001.BaseMapNoLabels.Fi)
+
+```
+
+The Bootstrap interval allows us to form a 95% of resampling map around the mean 
+the specific gender. We see that slightly overlap and do not form distinct group. 
+So while the plot of the observation look heterogeneous, it is statistically 
+homogeneous. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+## ----Boot4CI-------------------------------------------------------------
+# Bootstrap for CI:
+BootCube.Gr <- PTCA4CATA::Boot4Mean(resMCA$ExPosition.Data$fi, 
+                                 design = cleanData.allVar$Gender,
+                                 niter = 100,
+                                 suppressProgressBar = TRUE)
+nationsMeans <- PTCA4CATA::getMeans(resMCA$ExPosition.Data$fi, cleanData.allVar$Gender)
+# colCity <- c('darkblue', 'red4')
+MapGroup <- PTCA4CATA::createFactorMap(nationsMeans,
+                            # use the constraint from the main map
+                            constraints = BaseMap.Fi$constraints,
+                            col.points = colCity,
+                            cex = 7,  # size of the dot (bigger)
+                            col.labels = colCity,
+                            text.cex = 6)
+d002.Map.I.withMeans <- d0001.BaseMapNoLabels.Fi  +
+                          MapGroup$zeMap_dots + MapGroup$zeMap_text
+print(d002.Map.I.withMeans)
+
+```
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+
+## ----graphElli-----------------------------------------------------------
+GraphElli <- PTCA4CATA::MakeCIEllipses(BootCube.Gr$BootCube[,1:2,],
+                            names.of.factors = c("Dimension 1","Dimension 2"),
+                            col = colCity,
+                            p.level = .95)
+d003.Map.I.withCI <-  d0001.BaseMapNoLabels.Fi + 
+                          MapGroup$zeMap_text +  GraphElli
+print(d003.Map.I.withCI)
+
+## ----TI------------------------------------------------------------------
+GraphTI.Hull <- PTCA4CATA::MakeToleranceIntervals(resMCA$ExPosition.Data$fi,
+                            design = as.factor(cleanData.allVar$Gender),
+                            # line below is needed
+                            names.of.factors =  c("Dim1","Dim2"), # needed 
+                            col = colCity,
+                            line.size = .50, 
+                            line.type = 3,
+                            alpha.ellipse = .2,
+                            alpha.line    = .4,
+                            p.level       = .75)
+#_____________________________________________________________________
+# Create the map:
+d005.Map.I.withTIHull <- d002.Map.I.withMeans  +
+                           GraphTI.Hull + MapGroup$zeMap_dots +
+                           MapGroup$zeMap_text + MapGroup$zeMap_dots
+#_____________________________________________________________________
+```
+
+
+As stated earlier, the males tend to congregate in the third quadrant more than females. 
+Some males also tend to report lower rating on Classical, Swing, and Latino. Thus, 
+the tolerance interval gives a better visualization, via  a convex hull, for how 
+some males report their music preferences in comparison to females. However, 
+this should be view with caution as the confidence intervals overlap between 
+types of gender. 
+
+
+```{r, echo=FALSE, warning=FALSE,message=FALSE}
+# plot it
+
+print(d005.Map.I.withTIHull)
+```
+
+## Summary
+
+The Scree plot shows that there are three dimensions of interest, at least. 
+Classical,Swing, and Rock n Roll contribute the most to dimension 1. Dance, 
+Pop, Hiphop, and Latino contribute the most to dimension 2. Fast, Punk, 
+Classical, and Opera contribute the most to dimension 3. 
+
+In conclusion, Dance, Pop, Techo, Latino, and Hiphop form there own 
+group in relation to the other music groups. Bootstraps for dimension 1 were 
+significant. Based on the Important Variables MCA plot, Latino is related to 
+Punk and Rock n Roll. Gender means overlap, indication that the distinction 
+between groups is weak. However, the MCA Observations (by Gender) plot 
+shows a Convex Hull. 

@@ -1,0 +1,25 @@
+--- 
+title: "Multivariate Statistics for Data Science"
+author: "Samuel Slomowitz"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+# url: your book url like https://samslomowitz2021.github.io/bookdown40/
+cover-image: https://www.flickr.com/gp/194778449@N08/488nZ3
+description: |
+  RM3 Cookbook
+link-citations: yes
+github-repo: samslomowitz2021/bookdown40
+
+---
+# Preface {-}
+
+This is in my RM3 Cookbook. It contains all the methods I worked in in RM3.
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```
