@@ -21,7 +21,11 @@ MCA is an extension of PCA but analyzes categorical data instead. In some respec
 
 ![Alt text](MCA1.png?raw=true "Title")
 
+## Barycentric Discriminant Analysis
+
 BADA is a robust version of discriminant analysis, which groups observations into pre-defined groups such as COVID-19 positive or negative, employed or unemployed, or married, divorced, separated, or single. BADA can even be used when n << p. 
+
+![Alt text](BADA1.png?raw=true "Title")
 
 DiCA is an extension of Discriminant Analysis and Correspondence Analysis, with the caveat of containing nominal variables for the pre-defined groups. Traditionally, a comparison between a training data set and testing data set is done to evaluate the effectiveness of the classification ability of the analysis.
 
