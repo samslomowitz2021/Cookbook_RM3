@@ -27,11 +27,15 @@ BADA is a robust version of discriminant analysis, which groups observations int
 
 ![Alt text](BADA1.png?raw=true "Title")
 
+## Discriminant Correspondence Analysis
+
 DiCA is an extension of Discriminant Analysis and Correspondence Analysis, with the caveat of containing nominal variables for the pre-defined groups. Traditionally, a comparison between a training data set and testing data set is done to evaluate the effectiveness of the classification ability of the analysis.
 
 Using information from the same observations, PLSC finds the correlation of multivariate data in two data tables. The first step is to obtain latent variables from linear combination similar to PCA. Analogously, these latent variables maximize the covariance between the tables. Additionally, factor scores in PCA are akin to latent variables in PLSC while loadings in PCA are akin to saliences in PLSC. Bootstrap and permutation tests are added to the analysis when inferential PSLC is indicated.
 
 This method combines Multi-Dimensional Scaling and STATIS. The STATIS step follows the MDS step and is an optimization step. Thus, optimum weights are added to the data table. Further, the sqaure of Eucledian distances are used to group variable for each matrix. DiSTATIS is specifically a I x I x K matrix where I are objects and K are people.
+
+![Alt text](DiCA1.png?raw=true "Title")
 
 
 MFA is an extension of PCA with a multi-data table scenario. First, MFA does a PCA on each Table and normalizes each one. Second, the normalize tables are aggregated in a multi-dimensional table and another non-normalized PCA is run to generate factor scores and loadings. MFA specifically is a I by J by K matrix where I and J are objects and K are people.
