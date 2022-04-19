@@ -43,4 +43,6 @@ Using information from the same observations, PLSC finds the correlation of mult
 
 This method combines Multi-Dimensional Scaling and STATIS. The STATIS step follows the MDS step and is an optimization step. Thus, optimum weights are added to the data table. Further, the sqaure of Eucledian distances are used to group variable for each matrix. DiSTATIS is specifically a I x I x K matrix where I are objects and K are people.
 
+![Alt text](DISTATIS1.png?raw=true "Title")
+
 MFA is an extension of PCA with a multi-data table scenario. First, MFA does a PCA on each Table and normalizes each one. Second, the normalize tables are aggregated in a multi-dimensional table and another non-normalized PCA is run to generate factor scores and loadings. MFA specifically is a I by J by K matrix where I and J are objects and K are people.
