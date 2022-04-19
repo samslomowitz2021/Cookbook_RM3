@@ -15,7 +15,11 @@ The research question of this section is: Do types of low-income sausages differ
 
 ![Alt text](CA1.png?raw=true "Title")
 
+## Multiple Correspondence Analysis
+
 MCA is an extension of PCA but analyzes categorical data instead. In some respects it is analogous to CA but uses binary data instead. MCA can also be adapted to quantitative data that is scored, for example, -5 to 5 and then binned to represent a pattern of 0 and 1 data entries.
+
+![Alt text](MCA1.png?raw=true "Title")
 
 BADA is a robust version of discriminant analysis, which groups observations into pre-defined groups such as COVID-19 positive or negative, employed or unemployed, or married, divorced, separated, or single. BADA can even be used when n << p. 
 
