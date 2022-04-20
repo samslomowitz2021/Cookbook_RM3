@@ -45,4 +45,9 @@ This method combines Multi-Dimensional Scaling and STATIS. The STATIS step follo
 
 ![Alt text](DISTATIS1.png?raw=true "Title")
 
+
+## Multiple Factor Analysis
+
 MFA is an extension of PCA with a multi-data table scenario. First, MFA does a PCA on each Table and normalizes each one. Second, the normalize tables are aggregated in a multi-dimensional table and another non-normalized PCA is run to generate factor scores and loadings. MFA specifically is a I by J by K matrix where I and J are objects and K are people.
+
+![Alt text](MFA1.png?raw=true "Title")
